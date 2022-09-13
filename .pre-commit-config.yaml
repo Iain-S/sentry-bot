@@ -15,3 +15,17 @@ repos:
     hooks:
       - id: markdownlint
         args: [--style=mdl_style.rb]
+  - repo: local
+    hooks:
+      - id: black
+        name: Black
+        entry: poetry run black
+        language: system
+        types: ['python']
+  - repo: local
+    hooks:
+      - id: isort
+        name: isort
+        entry: poetry run isort
+        language: system
+        types: ['python']
