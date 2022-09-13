@@ -42,4 +42,5 @@ repos:
         name: mypy
         entry: poetry run mypy
         language: system
+        exclude: stubs/
         types: ['python']
