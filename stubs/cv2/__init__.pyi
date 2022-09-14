@@ -1572,7 +1572,18 @@ def VariationalRefinement_create() -> typing.Any:
     'VariationalRefinement_create() -> retval\n.   @brief Creates an instance of VariationalRefinement'
     ...
 
-VideoCapture = _mod_cv2.VideoCapture
+class VideoCapture:
+    def __init__(self, filename_or_index: typing.Union[str, int], api_preference: int=CAP_ANY):
+        ...
+
+    def isOpened(self) -> bool:
+        ...
+
+    def read(self, image: typing.Optional[typing.Any]=...) -> typing.Tuple[bool, typing.Any]:
+       ...
+
+
+
 VideoWriter = _mod_cv2.VideoWriter
 def VideoWriter_fourcc(c1, c2, c3, c4) -> typing.Any:
     'VideoWriter_fourcc(c1, c2, c3, c4) -> retval\n.   @brief Concatenates 4 chars to a fourcc code\n.   \n.       @return a fourcc code\n.   \n.       This static method constructs the fourcc code of the codec to be used in the constructor\n.       VideoWriter::VideoWriter or VideoWriter::open.'
