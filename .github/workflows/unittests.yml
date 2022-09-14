@@ -1,0 +1,45 @@
+---
+name: unittest action
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    # Run on master because caches are inherited from parent branches
+env:
+  PYTHON_VERSION: "3.10"
+jobs:
+  pre-commit_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Bootstrap poetry
+        shell: bash
+        run: |
+          python -m ensurepip
+          python -m pip install --upgrade pip
+          python -m pip install poetry
+      - name: Configure poetry
+        shell: bash
+        run: |
+          python -m poetry config virtualenvs.in-project true
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        id: poetry-cache
+        with:
+          path: .venv
+          key: ${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('poetry.lock') }}
+      - name: Install dependencies
+        shell: bash
+        if: steps.poetry-cache.outputs.cache-hit != 'true'
+        run: |
+          python -m poetry install
+      - name: Run pytest
+        shell: bash
+        run: |
+          python -m poetry run pytest --cov=sentrybot tests/
