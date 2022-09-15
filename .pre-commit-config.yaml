@@ -15,6 +15,12 @@ repos:
     hooks:
       - id: markdownlint
         args: [--style=mdl_style.rb]
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v8.23.1
+    hooks:
+      - id: eslint
+#        additional_dependencies:
+#          - eslint-config-google@latest
   - repo: local
     hooks:
       - id: black
