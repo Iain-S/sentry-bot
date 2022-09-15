@@ -1,11 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block head %}
+<style>
+  .dot {
+    width: 2px;
+    height: 2px;
+    background-color: black;
+    position: absolute;
+  }
+</style>
+<script type="text/javascript" src="static/js/hello.js"></script>
+<script type="text/javascript" src="static/js/mouse.js"></script>
+{% endblock %}
+{% block content %}
 <p>Testing, testing</p>
 <img src="{{ url_for('face_detection') }}" alt="webcam feed">
-</body>
-</html>
+<div class='etch-a-sketch' style="width:500px;height:100px;border:2px solid #000;"></div>
+{% endblock %}
