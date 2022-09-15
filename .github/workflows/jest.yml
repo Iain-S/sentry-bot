@@ -1,0 +1,33 @@
+---
+name: jest action
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    # Run on master because caches are inherited from parent branches
+jobs:
+  the_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Cache Node dependencies
+        uses: actions/cache@v3
+        id: node-cache
+        with:
+          key: node-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('poetry.lock') }}
+          path: frontend/node_modules
+      - name: Install dependencies
+        shell: bash
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: |
+          npm --prefix ./frontend install ./frontend
+      - name: Run tests
+        shell: bash
+        run: |
+          cd frontend && npm test

@@ -1,5 +1,5 @@
 ---
-name: unittest action
+name: pytest action
 on:
   pull_request:
     branches:
@@ -9,7 +9,7 @@ on:
 env:
   PYTHON_VERSION: "3.10"
 jobs:
-  pre-commit_job:
+  the_job:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -33,7 +33,7 @@ jobs:
         id: poetry-cache
         with:
           path: .venv
-          key: ${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('poetry.lock') }}
+          key: venv-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('poetry.lock') }}
       - name: Install dependencies
         shell: bash
         if: steps.poetry-cache.outputs.cache-hit != 'true'
