@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-Testing, testing
-<img src="{{ url_for('video_feed') }}" alt="video feed">
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+  <h1>Home</h1>
+  <a href="{{ url_for('video') }}">Watch a video</a>
+  <a href="{{ url_for('face_detection') }}">Watch your webcam</a>
+{% endblock %}

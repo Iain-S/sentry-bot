@@ -1,5 +1,6 @@
 """An autonomous sentry turret."""
 import logging
+import os
 from pathlib import Path
 from time import sleep
 from typing import Final, Generator, Mapping, Optional
@@ -87,29 +88,26 @@ def create_app(test_config: Optional[Mapping] = None) -> Flask:
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY="dev",
-        DATABASE=Path(app.instance_path) / "flaskr.sqlite",
     )
 
-    # ensure the instance folder exists
-    Path(app.instance_path).mkdir(parents=True, exist_ok=True)
+    print("current working dir", os.getcwd())
+    print("current . ", Path())
 
     if test_config is None:
-        # load the instance config, if it exists, when not testing
+        # Expect the config file to be in the current working directory
         app.config.from_file(
-            str(Path(app.instance_path) / "config.toml"), load=toml.load, silent=True
+            str(Path(".").resolve() / "config.toml"),
+            load=toml.load,  # silent=True
         )
     else:
-        # load the test config if passed in
         app.config.from_mapping(test_config)
 
-    @app.route("/hello")
-    def hello() -> str:
-        # a simple page that says hello
-        return "Hello, World!"
+    @app.route("/video")
+    def video() -> str:
+        return render_template("video.html")
 
     @app.route("/face-detection")
     def face_detection() -> str:
-        # return the rendered template
         return render_template("face_detection.html")
 
     @app.route("/face-detected-video-feed")
