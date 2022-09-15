@@ -53,7 +53,6 @@ repos:
     hooks:
       - id: tsc
         name: tsc
-        entry: tsc --strict --outDir sentrybot/static/js #--project frontend
+        entry: tsc --strict --outDir sentrybot/static/js
         language: system
-        #pass_filenames: false
         types: ['ts']
