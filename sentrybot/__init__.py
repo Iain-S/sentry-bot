@@ -90,9 +90,6 @@ def create_app(test_config: Optional[Mapping] = None) -> Flask:
         SECRET_KEY="dev",
     )
 
-    print("current working dir", os.getcwd())
-    print("current . ", Path())
-
     if test_config is None:
         # Expect the config file to be in the current working directory
         app.config.from_file(
