@@ -12,5 +12,4 @@ Autonomous Nerf turret
    ```
 
 3. Run the webserver with `flask --app sentrybot --debug run`
-4. Go to
-   - `localhost:5000/`
+4. Go to `localhost:5000/`
