@@ -55,4 +55,5 @@ repos:
         name: tsc
         entry: tsc --strict --outDir sentrybot/static/js
         language: system
+        exclude: '.test.ts'
         types: ['ts']
