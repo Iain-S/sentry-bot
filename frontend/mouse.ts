@@ -1,4 +1,11 @@
 window.onload = () => {
+  const xPos = document.querySelector("#xpos") as HTMLInputElement | null;
+  const yPos = document.querySelector("#ypos") as HTMLInputElement | null;
+
+  if (yPos == null || xPos == null) {
+    console.log("Could not find one or more of xPos and yPos");
+  }
+
   const box = document.querySelector(".etch-a-sketch") as HTMLDivElement | null;
 
   if (box == null) {
@@ -6,8 +13,9 @@ window.onload = () => {
     return;
   }
   box.onmousemove = handleMouseMove;
+
   function handleMouseMove(event: MouseEvent) {
-    let dot, eventDoc, doc, body, pageX, pageY;
+    let dot, pageX, pageY;
 
     event = event || window.event; // IE-ism
 
@@ -16,21 +24,6 @@ window.onload = () => {
     if (event.pageX != null && event.pageY != null) {
       pageX = event.pageX;
       pageY = event.pageY;
-    } else if (event.clientX != null && event.clientY != null) {
-      //         eventDoc = (event.target && event.target.ownerDocument) || document;
-      eventDoc = document;
-      doc = eventDoc.documentElement;
-      body = eventDoc.body;
-
-      pageX =
-        event.clientX +
-        ((doc && doc.scrollLeft) || (body && body.scrollLeft) || 0) -
-        ((doc && doc.clientLeft) || (body && body.clientLeft) || 0);
-
-      pageY =
-        event.clientY +
-        ((doc && doc.scrollTop) || (body && body.scrollTop) || 0) -
-        ((doc && doc.clientTop) || (body && body.clientTop) || 0);
     } else {
       return;
     }
@@ -41,5 +34,14 @@ window.onload = () => {
     dot.style.left = pageX + "px";
     dot.style.top = pageY + "px";
     document.body.appendChild(dot);
+
+    if (box != null) {
+      const boundingRect = box.getBoundingClientRect();
+      if (xPos != null && yPos != null) {
+        // Write the positions
+        xPos.value = (boundingRect.x - pageX).toString();
+        yPos.value = (boundingRect.y - pageY).toString();
+      }
+    }
   }
 };
