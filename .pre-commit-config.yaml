@@ -53,7 +53,6 @@ repos:
     hooks:
       - id: tsc
         name: tsc
-        entry: tsc --strict --outDir sentrybot/static/js
+        entry: tsc --strict --outDir sentrybot/static/js --project frontend/tsconfig.build.json
         language: system
-        exclude: '.test.ts'
-        types: ['ts']
+        pass_filenames: False
