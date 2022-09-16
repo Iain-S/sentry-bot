@@ -3,6 +3,7 @@ config.toml
 .idea/
 instance/
 node_modules/
+*.backup
 
 
 # Byte-compiled / optimized / DLL files
