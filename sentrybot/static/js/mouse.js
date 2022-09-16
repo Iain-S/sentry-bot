@@ -1,5 +1,6 @@
-"use strict";
+import { sum } from "./sum.js";
 window.onload = () => {
+    console.log(sum(5, 4));
     const xPos = document.querySelector("#xpos");
     const yPos = document.querySelector("#ypos");
     if (yPos == null || xPos == null) {

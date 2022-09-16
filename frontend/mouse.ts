@@ -1,4 +1,7 @@
+import { sum } from "./sum.js";
+
 window.onload = () => {
+  console.log(sum(5, 4));
   const xPos = document.querySelector("#xpos") as HTMLInputElement | null;
   const yPos = document.querySelector("#ypos") as HTMLInputElement | null;
 
