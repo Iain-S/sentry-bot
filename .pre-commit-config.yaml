@@ -16,10 +16,14 @@ repos:
       - id: markdownlint
         args: [--style=mdl_style.rb]
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: "v2.7.1"
+    rev: v2.7.1
     hooks:
       - id: prettier
         types: ['ts']
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.8.0.4
+    hooks:
+      - id: shellcheck
   - repo: local
     hooks:
       - id: black
@@ -51,8 +55,8 @@ repos:
         types: ['python']
   - repo: local
     hooks:
-      - id: tsc
-        name: tsc
-        entry: tsc --strict --outDir sentrybot/static/js --project frontend/tsconfig.build.json
+      - id: build_frontend
+        name: build_frontend
+        entry: ./build_frontend.sh
         language: system
         pass_filenames: False
