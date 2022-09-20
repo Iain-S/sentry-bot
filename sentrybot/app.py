@@ -6,7 +6,7 @@ from typing import Generator, Mapping, Optional
 
 import cv2
 import toml
-from flask import Flask, Response, render_template
+from flask import Flask, Response, render_template, send_from_directory
 
 
 def generate_video(video_path: str) -> Generator[bytes, None, None]:
@@ -125,5 +125,21 @@ def create_app(test_config: Optional[Mapping] = None) -> Flask:
             generate_video(video_path),
             mimetype="multipart/x-mixed-replace; boundary=frame",
         )
+
+    @app.route("/game")
+    def game() -> str:
+        return render_template("game.html")
+
+    @app.route("/TemplateData/<path:path>")
+    def send_template_data(path: str) -> Response:
+        return send_from_directory("static/TemplateData", path)
+
+    @app.route("/Build/<path:path>")
+    def send_build(path: str) -> Response:
+        return send_from_directory("static/Build", path)
+
+    @app.route("/StreamingAssets/<path:path>")
+    def send_streaming_assets(path: str) -> Response:
+        return send_from_directory("static/StreamingAssets", path)
 
     return app
