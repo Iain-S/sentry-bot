@@ -2,13 +2,11 @@
 import logging
 from pathlib import Path
 from time import sleep
-from typing import Final, Generator, Mapping, Optional
+from typing import Generator, Mapping, Optional
 
 import cv2
 import toml
 from flask import Flask, Response, render_template
-
-__version__: Final = "0.1.0"
 
 
 def generate_video(video_path: str) -> Generator[bytes, None, None]:
