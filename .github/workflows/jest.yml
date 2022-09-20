@@ -6,6 +6,8 @@ on:
       - master
   push:
     # Run on master because caches are inherited from parent branches
+env:
+  NODE_VERSION: "18"
 jobs:
   the_job:
     runs-on: ubuntu-latest
@@ -15,7 +17,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: ${{ env.NODE_VERSION }}
       - name: Cache Node dependencies
         uses: actions/cache@v3
         id: node-cache
