@@ -1,4 +1,5 @@
 # Project specifics
+.DS_Store
 config.toml
 .idea/
 instance/
