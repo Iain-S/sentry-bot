@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Transpile our TypeScript frontend code to JavaScript
 
 # Exit on error
 set -e
