@@ -126,6 +126,16 @@ def create_app(test_config: Optional[Mapping] = None) -> Flask:
             mimetype="multipart/x-mixed-replace; boundary=frame",
         )
 
+    @app.route("/send-receive")
+    def send_receive() -> str:
+        # Return a Dict, which will be jsonified automatically
+        return render_template("send_receive.html")
+
+    @app.route("/ajax-data")
+    def ajax_data() -> dict:
+        # Return a Dict, which will be jsonified automatically
+        return {"aString": "hello, world", "aNumber": 55}
+
     @app.route("/game")
     def game() -> str:
         return render_template("game.html")
