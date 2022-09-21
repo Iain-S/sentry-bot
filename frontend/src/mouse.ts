@@ -4,23 +4,27 @@ export function handleMouseMove(
   yPos: HTMLInputElement
 ) {
   // On a MouseEvent, draw a dot where the cursor is if it is inside the listening element.
-  //
-  // Write the x and y coordinates to xPos and yPos.
-  let dot, pageX, pageY;
+  let x, y, pageX, pageY;
 
   event = event || window.event; // IE-ism
 
-  // If pageX/Y aren't available and clientX/Y
-  // are, calculate pageX/Y - logic taken from jQuery
-  if (event.pageX != null && event.pageY != null) {
+  if (
+    event.x != null &&
+    event.y != null &&
+    event.pageX != null &&
+    event.pageY != null
+  ) {
+    x = event.x;
+    y = event.y;
     pageX = event.pageX;
     pageY = event.pageY;
   } else {
+    console.log("Could not determine event location.");
     return;
   }
 
   // Add a dot to follow the cursor
-  dot = document.createElement("div");
+  let dot = document.createElement("div");
   dot.className = "dot";
   dot.style.left = pageX + "px";
   dot.style.top = pageY + "px";
@@ -31,8 +35,10 @@ export function handleMouseMove(
     const boundingRect = currentTarget.getBoundingClientRect();
     if (xPos != null && yPos != null) {
       // Write the positions
-      xPos.value = (boundingRect.x - pageX).toString();
-      yPos.value = (boundingRect.y - pageY).toString();
+      xPos.value = (x - boundingRect.x).toString();
+      yPos.value = (y - boundingRect.y).toString();
     }
+  } else {
+    console.log("Could not determine event target.");
   }
 }
