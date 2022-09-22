@@ -1,7 +1,8 @@
 # sentry-bot
 
-![something](./assets/license-MIT-green.svg)
-![something](./assets/platform-Linux_or_macOS-lightgrey.svg)
+![license](./assets/license-MIT-green.svg)
+![platform](./assets/platform-Linux_or_macOS-lightgrey.svg)
+![python](./assets/python-3_10-blue.svg)
 
 An autonomous Nerf turret
 
