@@ -32,4 +32,4 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          cd frontend && npm test
+          ./test_frontend.sh

@@ -4,7 +4,7 @@
 # Exit on error
 set -e
 
-cd frontend || exit
+cd frontend || exit 1
 
 if [ "$1" = "--watch" ]; then
 
