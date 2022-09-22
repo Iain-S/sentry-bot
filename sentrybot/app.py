@@ -2,11 +2,11 @@
 import logging
 from pathlib import Path
 from time import sleep
-from typing import Generator, Mapping, Optional
+from typing import Generator, List, Mapping, Optional
 
 import cv2
 import toml
-from flask import Flask, Response, render_template, send_from_directory
+from flask import Flask, Response, abort, render_template, request, send_from_directory
 
 
 def generate_video(video_path: str) -> Generator[bytes, None, None]:
@@ -37,9 +37,11 @@ def generate_video(video_path: str) -> Generator[bytes, None, None]:
                 )
 
 
-def generate_face_detection_video() -> Generator[bytes, None, None]:
+def generate_face_detection_video(
+    mouse_position: List[int],
+) -> Generator[bytes, None, None]:
     """Generate a video stream from a camera, with face detection rectangles."""
-    # pylint: disable=no-member,invalid-name
+    # pylint: disable=no-member,invalid-name,too-many-locals
 
     # cv2 comes with cascade files
     casc_path = Path(cv2.__path__[0]) / "data/haarcascade_frontalface_default.xml"
@@ -69,6 +71,19 @@ def generate_face_detection_video() -> Generator[bytes, None, None]:
         for (x, y, w, h) in faces:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
+        # Draw a dot where the mouse is
+        if mouse_position:
+            mouse_x = mouse_position[0]
+            mouse_y = mouse_position[1]
+            logging.debug("x:%s  y:%s", mouse_x, mouse_y)
+            cv2.rectangle(
+                frame,
+                (mouse_x, mouse_y),
+                (mouse_x + 10, mouse_y + 10),
+                (255, 0, 0),
+                4,
+            )
+
         # Encode the frame in JPEG format
         (flag, encoded_image) = cv2.imencode(".jpg", frame)
 
@@ -82,6 +97,9 @@ def generate_face_detection_video() -> Generator[bytes, None, None]:
 
 def create_app(test_config: Optional[Mapping] = None) -> Flask:
     """Create and configure the app."""
+    # pylint: disable=inconsistent-return-statements
+    mouse_position: List[int] = []
+
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY="dev",
@@ -107,7 +125,7 @@ def create_app(test_config: Optional[Mapping] = None) -> Flask:
     @app.route("/face-detected-video-feed")
     def face_detected_video() -> Response:
         return Response(
-            generate_face_detection_video(),
+            generate_face_detection_video(mouse_position),
             mimetype="multipart/x-mixed-replace; boundary=frame",
         )
 
@@ -131,10 +149,20 @@ def create_app(test_config: Optional[Mapping] = None) -> Flask:
         # Return a Dict, which will be jsonified automatically
         return render_template("send_receive.html")
 
-    @app.route("/ajax-data")
+    @app.route("/ajax-data", methods=["POST", "GET"])
     def ajax_data() -> dict:
-        # Return a Dict, which will be jsonified automatically
-        return {"aString": "hello, world", "aNumber": 55}
+        if request.method == "POST":
+            if request.json and "xPos" in request.json and "yPos" in request.json:
+                mouse_position[0:2] = [
+                    int(round(request.json["xPos"], 0)),
+                    int(round(request.json["yPos"], 0)),
+                ]
+                return {}
+
+            abort(404, description="One or more of xPos and yPos are missing")
+        else:
+            # Return a Dict, which will be jsonified automatically
+            return {"aString": "hello, world", "aNumber": 55}
 
     @app.route("/game")
     def game() -> str:

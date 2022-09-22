@@ -1,5 +1,5 @@
 export function handleMouseMove(event, xPos, yPos) {
-    // On a MouseEvent, draw a dot where the cursor is if it is inside the listening element.
+    // On a MouseEvent, draw a dot where the cursor is.
     let x, y, pageX, pageY;
     event = event || window.event; // IE-ism
     if (event.x != null &&
@@ -24,11 +24,22 @@ export function handleMouseMove(event, xPos, yPos) {
     if (event.currentTarget != null) {
         const currentTarget = event.currentTarget;
         const boundingRect = currentTarget.getBoundingClientRect();
-        if (xPos != null && yPos != null) {
-            // Write the positions
-            xPos.value = (x - boundingRect.x).toString();
-            yPos.value = (y - boundingRect.y).toString();
-        }
+        // Write the positions to the text boxes
+        xPos.value = (x - boundingRect.x).toString();
+        yPos.value = (y - boundingRect.y).toString();
+        // Send the co-ordinates to the server
+        const req = new XMLHttpRequest();
+        req.addEventListener("load", (event) => {
+            console.log("Mouse movements received");
+        });
+        req.open("POST", "/ajax-data");
+        const params = JSON.stringify({
+            xPos: x - boundingRect.x,
+            yPos: y - boundingRect.y,
+        });
+        req.setRequestHeader("Content-type", "application/json; charset=utf-8");
+        req.send(params);
+        console.log("Mouse movements sent");
     }
     else {
         console.log("Could not determine event target.");
