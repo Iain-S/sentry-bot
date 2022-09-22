@@ -42,4 +42,4 @@ jobs:
       - name: Run pytest
         shell: bash
         run: |
-          python -m poetry run pytest --cov=sentrybot tests/
+          python -m poetry run ./test_backend.sh
