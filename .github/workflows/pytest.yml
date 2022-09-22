@@ -3,9 +3,9 @@ name: pytest action
 on:
   pull_request:
     branches:
-      - master
+      - main
+  # Run on push to any branch because caches are inherited from parent branches
   push:
-    # Run on master because caches are inherited from parent branches
 env:
   PYTHON_VERSION: "3.10"
 jobs:
