@@ -14,9 +14,6 @@ from sentrybot.app import create_app
 def app() -> Generator[Flask, None, None]:
     """Generate a Flask app for testing."""
     app = create_app({})
-    # app.config.update({
-    #     "TESTING": True,
-    # })
 
     # other setup can go here
 
@@ -29,6 +26,24 @@ def app() -> Generator[Flask, None, None]:
 def client(app: Flask) -> FlaskClient:
     """Make a testing client."""
     return app.test_client()
+
+
+def test_get_index(client: FlaskClient) -> None:
+    """Test GETing the route."""
+    response = client.get("/")
+    assert response.status == "200 OK"
+
+
+def test_get_video(client: FlaskClient) -> None:
+    """Test GETing the route."""
+    response = client.get("/video")
+    assert response.status == "200 OK"
+
+
+def test_get_face_detection(client: FlaskClient) -> None:
+    """Test GETing the route."""
+    response = client.get("/face-detection")
+    assert response.status == "200 OK"
 
 
 def test_post_ajax_data(client: FlaskClient) -> None:
