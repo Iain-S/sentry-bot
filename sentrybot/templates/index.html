@@ -1,6 +1,12 @@
 {% extends "base.html" %}
+{% block head %}
+{% endblock %}
 {% block content %}
-  <h1>Home</h1>
-  <a href="{{ url_for('video') }}">Watch a video</a>
-  <a href="{{ url_for('face_detection') }}">Watch your webcam</a>
+<div class="centered-text">
+  <ul class="displayed-inline">
+    <li><a href="{{ url_for('video') }}">Watch a video</a></li>
+    <li><a href="{{ url_for('face_detection') }}">Watch your webcam</a></li>
+    <li><a href="{{ url_for('send_receive') }}">Get the time</a></li>
+  </ul>
+</div>
 {% endblock %}

@@ -7,3 +7,7 @@
   display: inline-block;
   text-align: left;
 }
+
+#sentrybot-link {
+  font-family: Arial, Helvetica, sens-serif;
+}
