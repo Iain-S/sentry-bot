@@ -56,3 +56,9 @@ def test_get_ajax_data(client: FlaskClient) -> None:
     """Test GETing the route."""
     response = client.get("/ajax-data")
     assert response.status == "200 OK"
+
+
+def test_get_send_receive(client: FlaskClient) -> None:
+    """Test GETing the route."""
+    response = client.get("/send-receive")
+    assert response.status == "200 OK"

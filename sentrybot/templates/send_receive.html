@@ -3,5 +3,9 @@
 <script type="module" src="static/js/send_receive.js"></script>
 {% endblock %}
 {% block content %}
-<p>Testing, testing</p>
+<div class="centered-text">
+    <p>Click the button to get the server's current time.</p>
+    <button type="button" id="update-time">Update</button>
+    <input size="29" type="text" id="the-time" readonly><br>
+</div>
 {% endblock %}
