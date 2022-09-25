@@ -1,4 +1,5 @@
 """App factory module."""
+from datetime import datetime
 from pathlib import Path
 from typing import List, Mapping, Optional
 
@@ -71,7 +72,7 @@ def create_app(test_config: Optional[Mapping] = None) -> Flask:
             abort(404, description="One or more of xPos and yPos are missing")
         else:
             # Return a dict, which will be jsonified automatically
-            return {"aString": "hello, world", "aNumber": 55}
+            return {"theDate": datetime.now()}
 
     @app.route("/game")
     def game() -> str:
