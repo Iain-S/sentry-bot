@@ -10,32 +10,15 @@ class TurretController:
     """Controls for the physical turret."""
 
     def __init__(self) -> None:
-        self._x: float = 0
-        self._y: float = 0
+        self._x_servo = Servo()
+        self._y_servo = Servo()
 
-    @property
-    def x(self) -> float:
-        """Get the current objective x value."""
-        return self._x
-
-    @x.setter
-    def x(self, degrees: float) -> None:
+    def set_x(self, value: float) -> None:
         """Set the current objective x value."""
-        if not -90 <= degrees <= 90:
+        if not -1 <= value <= 1:
             raise RangeOfMovementError
 
-        pwm = Servo()
-        pwm.value = 90
-        self._x = degrees
-
-    @property
-    def y(self) -> float:
-        """Get the current objective y value."""
-        return self._y
-
-    @y.setter
-    def y(self, degrees: float) -> None:
+    def set_y(self, value: float) -> None:
         """Set the current objective y value."""
-        if not -10 <= degrees <= 90:
+        if not 0 <= value <= 1:
             raise RangeOfMovementError
-        self._y = degrees
