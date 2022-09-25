@@ -29,8 +29,13 @@ An autonomous Nerf turret
 1. Change directory `cd sentry-bot/`
    (subsequent instructions assume you are in the repo root directory)
 
-The backend, which you'll find in `sentrybot/`, is a Python Flask webserver.
-The frontend, found in `frontend/`, is TypeScript that is transpiled to JavaScript.
+#### Layout
+
+- [assets/](./assets) contains images, etc. for the README
+- [frontend/](./frontend) contains the frontend code and tests, which are written in TypeScript
+- [sentrybot/](./sentrybot) contains the backend code, which is a Python Flask webserver
+- [stubs/](./stubs) contains type stubs for Mypy
+- [tests/](./tests) contains the backend tests
 
 ### Pre-requisites
 
