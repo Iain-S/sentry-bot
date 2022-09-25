@@ -17,6 +17,7 @@ class TurretController:
         """Set the current objective x value."""
         if not -1 <= value <= 1:
             raise RangeOfMovementError
+        self._x_servo.value = 1
 
     def set_y(self, value: float) -> None:
         """Set the current objective y value."""

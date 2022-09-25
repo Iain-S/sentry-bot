@@ -2,4 +2,4 @@
 
 
 class Servo:
-    pass
+    value: float
