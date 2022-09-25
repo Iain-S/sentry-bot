@@ -1,0 +1,9 @@
+.centered-text {
+  font-family: Arial, Helvetica, sens-serif;
+  text-align: center;
+}
+
+.displayed-inline{
+  display: inline-block;
+  text-align: left;
+}
