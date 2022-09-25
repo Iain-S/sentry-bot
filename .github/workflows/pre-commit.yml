@@ -50,7 +50,7 @@ jobs:
         uses: actions/cache@v3
         id: node-cache
         with:
-          key: node-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ hashFiles('poetry.lock') }}
+          key: node-${{ runner.os }}-${{ env.NODE_VERSION }}-${{ hashFiles('poetry.lock') }}
           path: frontend/node_modules
       - name: Install dependencies
         shell: bash
