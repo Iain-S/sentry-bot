@@ -25,8 +25,8 @@ An autonomous Nerf turret
 
 ### Obtain the Code
 
-1. Clone the repository `git clone path/to/sentry-bot-repo`
-1. Change directory `cd sentry-bot/`
+1. Clone the repository with something like `git clone path/to/sentry-bot-repo`
+1. Change directory with `cd sentry-bot/`
    (subsequent instructions assume you are in the repo root directory)
 
 #### Layout
@@ -67,10 +67,10 @@ The formatters and linters specified in [.pre-commit-config.yaml](.pre-commit-co
 
 #### Frontend
 
-1. Check that you can build the frontend `./build_frontend.sh`
+1. Check that you can build the frontend with `./build_frontend.sh`
    (you can build whenever a .ts file changes by adding a `--watch` argument)
 
 ## Run the Server
 
 1. Run the webserver with `flask --app sentrybot --debug run`
-1. Go to `localhost:5000/`
+1. Go to `localhost:5000/` in your web browser
