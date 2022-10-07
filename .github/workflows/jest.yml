@@ -2,10 +2,10 @@
 name: jest action
 on:
   pull_request:
+  # Run on merge to main because caches are inherited from parent branches
+  push:
     branches:
       - main
-  # Run on push to any branch because caches are inherited from parent branches
-  push:
 env:
   NODE_VERSION: "18"
 jobs:
