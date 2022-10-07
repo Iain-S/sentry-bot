@@ -14,7 +14,7 @@ opencv-python = "^4.6.0"
 black = "^22.8.0"
 isort = "^5.10.1"
 pylint = "^2.15.2"
-mypy = "^0.971"
+mypy = "^0.982"
 types-toml = "^0.10.8"
 pytest-cov = "^3.0.0"
 
