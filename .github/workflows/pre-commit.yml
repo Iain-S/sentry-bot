@@ -41,7 +41,7 @@ jobs:
         shell: bash
         if: steps.poetry-cache.outputs.cache-hit != 'true'
         run: |
-          python -m poetry install
+          python -m poetry install --without picamera
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
