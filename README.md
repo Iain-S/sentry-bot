@@ -6,23 +6,46 @@
 
 An autonomous Nerf turret
 
+## Optional Extras
+
+This package has two optional extras.
+You must install at least one for camera-related features to work.
+
+- `[picamera]` can only be installed on Raspberry Pi hardware
+- `[opencv]` is used for object recognition.
+  It can be installed on Pi and non-Pi hardware but is extremely slow to compile on a Pi.
+
 ## Deployment
 
-todo...
+To install on a Raspberry Pi, log in and then:
+
+1. Install the project with
+
+   ```shell
+   pip install "git+https://github.com/Iain-S/sentry-bot#egg=sentrybot[picamera]"`
+   ```
+
+   **Note** that we are installing the `[picamera]` extra and that the `"` quotes are required if using `zsh`.
+
+1. _optional_ Manually compile and install OpenCV by following, for example, [these](https://pimylifeup.com/raspberry-pi-opencv/) instructions
+1. Proceed to [Run the Server](#run-the-server)
 
 ## User Setup
 
-### Installation
+You can install this package on non-Pi hardware using `pip`.
+Some features of this package will be unavailable on non-Pi hardware but the web server will still run.
 
-1. Install the sentry-bot package
-1. _optional_ Make a `config.toml` file, with these contents, in the directory you will run the app from
+If your computer has a camera, you can install the `[opencv]` extra.
+You should not try to install the `[picamera]` extra on non-Pi hardware as installation will fail.
 
-   ```toml
-   VIDEO_PATH='/path/to/any/video.mp4'
+1. Install the project with
+
+   ```shell
+   pip install "git+https://github.com/Iain-S/sentry-bot#egg=sentrybot[opencv]"`
    ```
 
-1. _optional_ Build webGL project with Unity and copy the `Build/`, `StreamingAssets/` and `TemplateData/` directories to `sentrybot/static/`.
-   This game can be accessed via the `/game` URL.
+   **Note** that we are installing the `[opencv]` extra and that the `"` quotes are required if using `zsh`.
+
 1. Proceed to [Run the Server](#run-the-server)
 
 ## Developer Setup
@@ -47,7 +70,7 @@ todo...
 
 1. Install Python >= 3.10
 1. [Install Poetry](https://python-poetry.org/docs/#installation)
-1. Install the `sentrybot` package with `poetry install`
+1. Install the `sentrybot` package and `[opencv]` extra with `poetry install -E opencv`
 1. Active our new virtual environment with `poetry shell`
    (subsequent instructions assume this is still active)
 
@@ -76,5 +99,14 @@ The formatters and linters specified in [.pre-commit-config.yaml](.pre-commit-co
 
 ## Run the Server
 
+1. Make a `config.toml` file in the directory you will run the app from
+1. _optional_ Add an environment variable to `config.toml` with the path to a `.mp4` video
+
+   ```toml
+   VIDEO_PATH='/path/to/any/video.mp4'
+   ```
+
+1. _optional_ Build webGL project with Unity and copy the `Build/`, `StreamingAssets/` and `TemplateData/` directories to `sentrybot/static/`.
+   This game can be accessed via the `/game` URL.
 1. Run the webserver with `flask --app sentrybot --debug run`
-1. Go to `localhost:5000/` in your web browser
+1. Go to `localhost:5000/` in your web browser if running locally or `ip.of.your.pi:5000/` if running on a Pi

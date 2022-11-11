@@ -219,16 +219,16 @@ python-versions = "*"
 name = "numpy"
 version = "1.23.4"
 description = "NumPy is the fundamental package for array computing with Python."
-category = "dev"
-optional = false
+category = "main"
+optional = true
 python-versions = ">=3.8"
 
 [[package]]
 name = "opencv-python"
 version = "4.6.0.66"
 description = "Wrapper package for OpenCV python bindings."
-category = "dev"
-optional = false
+category = "main"
+optional = true
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -262,8 +262,8 @@ python-versions = ">=3.7"
 name = "picamera"
 version = "1.13"
 description = "A pure Python interface for the Raspberry Pi camera module."
-category = "dev"
-optional = false
+category = "main"
+optional = true
 python-versions = "*"
 
 [package.extras]
@@ -425,10 +425,14 @@ category = "dev"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 
+[extras]
+opencv = ["opencv-python"]
+picamera = ["picamera"]
+
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "f16b5a728a9897034b0e127230324ffedcf1293d793bb85826df3764dbb85e5b"
+content-hash = "3e9977743b225afd37132491a851ad1c83ff03d6c979ab9aee4e8268e3797b9d"
 
 [metadata.files]
 astroid = [
