@@ -62,3 +62,15 @@ def test_get_send_receive(client: FlaskClient) -> None:
     """Test GETing the route."""
     response = client.get("/send-receive")
     assert response.status == "200 OK"
+
+
+def test_get_movable_camera(client: FlaskClient) -> None:
+    """Test GETing the route."""
+    response = client.get("/movable-camera")
+    assert response.status == "200 OK"
+
+
+def test_get_movable_camera_video(client: FlaskClient) -> None:
+    """Test GETing the route."""
+    # todo
+    pass

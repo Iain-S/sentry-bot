@@ -35,11 +35,69 @@ def generate_file_video(video_path: str) -> Generator[bytes, None, None]:
                 )
 
 
-def generate_camera_video(
+def generate_movable_camera_video(
     mouse_position: List[int],
 ) -> Generator[bytes, None, None]:
+    """Generate a mouse controlled video stream from a camera, with face detection."""
+    # pylint: disable=no-member
+    for frame in generate_face_detected_video():
+        # Draw a dot where the mouse is
+        if mouse_position:
+            mouse_x = mouse_position[0]
+            mouse_y = mouse_position[1]
+            logging.debug("x:%s  y:%s", mouse_x, mouse_y)
+            cv2.rectangle(
+                frame,
+                (mouse_x, mouse_y),
+                (mouse_x + 10, mouse_y + 10),
+                (255, 0, 0),
+                4,
+            )
+
+        # Encode the frame in JPEG format
+        (flag, encoded_image) = cv2.imencode(".jpg", frame)
+
+        # Ensure the frame was successfully encoded
+        if flag:
+            yield (
+                b"--frame\r\n"
+                b"Content-Type: image/jpeg\r\n\r\n" + bytearray(encoded_image) + b"\r\n"
+            )
+
+
+def generate_mouse_feedback_camera_video(
+    mouse_position: List[int],
+) -> Generator[bytes, None, None]:
+    """Generate a video stream from a camera, with face detection rectangles and mouse dots."""
+    # pylint: disable=no-member
+    for frame in generate_face_detected_video():
+        # Draw a dot where the mouse is
+        if mouse_position:
+            mouse_x = mouse_position[0]
+            mouse_y = mouse_position[1]
+            logging.debug("x:%s  y:%s", mouse_x, mouse_y)
+            cv2.rectangle(
+                frame,
+                (mouse_x, mouse_y),
+                (mouse_x + 10, mouse_y + 10),
+                (255, 0, 0),
+                4,
+            )
+
+        # Encode the frame in JPEG format
+        (flag, encoded_image) = cv2.imencode(".jpg", frame)
+
+        # Ensure the frame was successfully encoded
+        if flag:
+            yield (
+                b"--frame\r\n"
+                b"Content-Type: image/jpeg\r\n\r\n" + bytearray(encoded_image) + b"\r\n"
+            )
+
+
+def generate_face_detected_video() -> Generator[bytes, None, None]:
     """Generate a video stream from a camera, with face detection rectangles."""
-    # pylint: disable=no-member,invalid-name,too-many-locals
+    # pylint: disable=no-member,invalid-name
 
     # cv2 comes with cascade files
     casc_path = Path(cv2.__path__[0]) / "data/haarcascade_frontalface_default.xml"
@@ -69,25 +127,4 @@ def generate_camera_video(
         for (x, y, w, h) in faces:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-        # Draw a dot where the mouse is
-        if mouse_position:
-            mouse_x = mouse_position[0]
-            mouse_y = mouse_position[1]
-            logging.debug("x:%s  y:%s", mouse_x, mouse_y)
-            cv2.rectangle(
-                frame,
-                (mouse_x, mouse_y),
-                (mouse_x + 10, mouse_y + 10),
-                (255, 0, 0),
-                4,
-            )
-
-        # Encode the frame in JPEG format
-        (flag, encoded_image) = cv2.imencode(".jpg", frame)
-
-        # Ensure the frame was successfully encoded
-        if flag:
-            yield (
-                b"--frame\r\n"
-                b"Content-Type: image/jpeg\r\n\r\n" + bytearray(encoded_image) + b"\r\n"
-            )
+        yield frame

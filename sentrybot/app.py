@@ -7,16 +7,18 @@ from typing import Callable, Generator, List, Mapping, Optional
 import toml
 from flask import Flask, Response, abort, render_template, request, send_from_directory
 
-generate_camera_video: Optional[
-    Callable[[List[int]], Generator[bytes, None, None]]
-] = None
-generate_file_video: Optional[Callable[[str], Generator[bytes, None, None]]] = None
+BytesGenerator = Generator[bytes, None, None]
+
+generate_camera_video: Optional[Callable[[List[int]], BytesGenerator]] = None
+generate_file_video: Optional[Callable[[str], BytesGenerator]] = None
+generate_movable_camera_video: Optional[Callable[[List[int]], BytesGenerator]] = None
 
 if importlib.util.find_spec("cv2"):
     import sentrybot.video_opencv
 
-    generate_camera_video = sentrybot.video_opencv.generate_camera_video
+    generate_camera_video = sentrybot.video_opencv.generate_mouse_feedback_camera_video
     generate_file_video = sentrybot.video_opencv.generate_file_video
+    generate_movable_camera_video = sentrybot.video_opencv.generate_movable_camera_video
 
 elif importlib.util.find_spec("picamera"):
     import sentrybot.video_picamera
@@ -27,7 +29,7 @@ elif importlib.util.find_spec("picamera"):
 
 def create_app(test_config: Optional[Mapping] = None) -> Flask:
     """Create and configure the app."""
-    # pylint: disable=inconsistent-return-statements
+    # pylint: disable=inconsistent-return-statements,too-many-locals
     mouse_position: List[int] = []
 
     app = Flask(__name__, instance_relative_config=True)
@@ -95,6 +97,20 @@ def create_app(test_config: Optional[Mapping] = None) -> Flask:
         else:
             # Return a dict, which will be JSONified automatically
             return {"theDate": datetime.now()}
+
+    @app.route("/movable-camera-video")
+    def movable_camera_video() -> Response:
+        if not generate_movable_camera_video:
+            abort(503)
+
+        return Response(
+            generate_movable_camera_video(mouse_position),
+            mimetype="multipart/x-mixed-replace; boundary=frame",
+        )
+
+    @app.route("/movable-camera")
+    def movable_camera() -> str:
+        return render_template("movable_camera.html")
 
     @app.route("/game")
     def game() -> str:
