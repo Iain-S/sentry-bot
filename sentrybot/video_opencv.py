@@ -1,4 +1,4 @@
-"""Generators for video streams."""
+"""Generators for video streams that use OpenCV."""
 import logging
 from pathlib import Path
 from time import sleep
@@ -7,7 +7,7 @@ from typing import Generator, List
 import cv2
 
 
-def generate_video(video_path: str) -> Generator[bytes, None, None]:
+def generate_file_video(video_path: str) -> Generator[bytes, None, None]:
     """Generate a video stream from a file."""
     # pylint: disable=no-member
     while True:
@@ -35,7 +35,7 @@ def generate_video(video_path: str) -> Generator[bytes, None, None]:
                 )
 
 
-def generate_face_detection_video(
+def generate_camera_video(
     mouse_position: List[int],
 ) -> Generator[bytes, None, None]:
     """Generate a video stream from a camera, with face detection rectangles."""
