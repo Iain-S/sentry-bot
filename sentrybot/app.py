@@ -1,12 +1,28 @@
 """App factory module."""
+import importlib
 from datetime import datetime
 from pathlib import Path
-from typing import List, Mapping, Optional
+from typing import Callable, Generator, List, Mapping, Optional
 
 import toml
 from flask import Flask, Response, abort, render_template, request, send_from_directory
 
-from sentrybot.video import generate_face_detection_video, generate_video
+generate_camera_video: Optional[
+    Callable[[List[int]], Generator[bytes, None, None]]
+] = None
+generate_file_video: Optional[Callable[[str], Generator[bytes, None, None]]] = None
+
+if importlib.util.find_spec("cv2"):
+    import sentrybot.video_opencv
+
+    generate_camera_video = sentrybot.video_opencv.generate_camera_video
+    generate_file_video = sentrybot.video_opencv.generate_file_video
+
+elif importlib.util.find_spec("picamera"):
+    import sentrybot.video_picamera
+
+    generate_camera_video = sentrybot.video_picamera.generate_camera_video
+    generate_video = sentrybot.video_picamera.generate_file_video
 
 
 def create_app(test_config: Optional[Mapping] = None) -> Flask:
@@ -38,8 +54,11 @@ def create_app(test_config: Optional[Mapping] = None) -> Flask:
 
     @app.route("/face-detected-video-feed")
     def face_detected_video() -> Response:
+        if not generate_camera_video:
+            abort(503)
+
         return Response(
-            generate_face_detection_video(mouse_position),
+            generate_camera_video(mouse_position),
             mimetype="multipart/x-mixed-replace; boundary=frame",
         )
 
@@ -49,9 +68,12 @@ def create_app(test_config: Optional[Mapping] = None) -> Flask:
 
     @app.route("/video-feed")
     def video_feed() -> Response:
+        if not generate_file_video:
+            abort(503)
+
         video_path = app.config["VIDEO_PATH"]
         return Response(
-            generate_video(video_path),
+            generate_file_video(video_path),
             mimetype="multipart/x-mixed-replace; boundary=frame",
         )
 
@@ -71,7 +93,7 @@ def create_app(test_config: Optional[Mapping] = None) -> Flask:
 
             abort(404, description="One or more of xPos and yPos are missing")
         else:
-            # Return a dict, which will be jsonified automatically
+            # Return a dict, which will be JSONified automatically
             return {"theDate": datetime.now()}
 
     @app.route("/game")
