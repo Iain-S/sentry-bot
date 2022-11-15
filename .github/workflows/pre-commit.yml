@@ -9,7 +9,7 @@ on:
 env:
   # This should be the default but we'll be explicit
   PRE_COMMIT_HOME: ~/.caches/pre-commit
-  PYTHON_VERSION: "3.10"
+  PYTHON_VERSION: "3.8"
   NODE_VERSION: "18"
 jobs:
   the_job:
