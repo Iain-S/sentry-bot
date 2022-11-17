@@ -1,7 +1,7 @@
 """Module for moving, and streaming video from, the physical turret."""
 from time import sleep
 
-import gpiozero
+import gpiozero  # type: ignore
 
 
 class RangeOfMovementError(Exception):
@@ -42,7 +42,7 @@ class TurretController:
 
         self._breach_servo.value = -0.5
 
-        # ToDo Is this necessary?
+        # May, or may not, be necessary
         sleep(0.01)
 
         self._breach_servo.value = 0
