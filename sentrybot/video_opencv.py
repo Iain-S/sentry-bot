@@ -55,6 +55,8 @@ def generate_camera_video(
             logging.warning("Can't receive frame (stream end?).")
             sleep(0.03)
 
+        frame = cv2.resize(frame, (640, 360), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
+
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         faces = face_cascade.detectMultiScale(
