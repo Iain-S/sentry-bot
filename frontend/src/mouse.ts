@@ -6,6 +6,10 @@ export function handleMouseMove(
   // On a MouseEvent, draw a dot where the cursor is.
   let x, y, pageX, pageY;
 
+  if (event.ctrlKey != true) {
+    return;
+  }
+
   event = event || window.event; // IE-ism
 
   if (
