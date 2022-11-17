@@ -4,7 +4,7 @@ from pathlib import Path
 from time import sleep
 from typing import Generator, List
 
-import cv2
+import cv2  # type: ignore
 
 
 def generate_file_video(video_path: str) -> Generator[bytes, None, None]:
