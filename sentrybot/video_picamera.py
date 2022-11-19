@@ -21,7 +21,7 @@ class StreamingOutput:
     """todo."""
 
     def __init__(self) -> None:
-        self.frame: bytes = None  #bytes()
+        self.frame: bytes = bytes()
         self.buffer = io.BytesIO()
         self.condition = Condition()
 
@@ -55,10 +55,8 @@ def generate_camera_video(
 
         output = StreamingOutput()
         camera.start_recording(output, format="mjpeg")
-        #camera.start_recording("capture.mjpeg", format="mjpeg")
-        #time.sleep(5)
-        #return
 
+        # It seems that we need to discard the first frame, in case it is empty
         with output.condition:
             output.condition.wait()
             print("reading frame")
@@ -67,19 +65,8 @@ def generate_camera_video(
         for i in range(1000):
             with output.condition:
                 output.condition.wait()
-                #print("reading frame")
                 frame = output.frame
-                #print(frame[:100])
-            # self.send_header('Content-Length', len(frame))
-            # self.wfile.write(frame)
-            # self.wfile.write(b'\r\n')
-            #thing = b"--frame\r\n" \
-            #      + b"Content-Type: image/jpeg\r\n\r\n" \
-            #      + frame \
-            #      + b"\r\n"
-            #      # + bytearray(frame) \
 
-            #print(thing[:100])
             yield (
                 b"--frame\r\n" 
                 b"Content-Type: image/jpeg\r\n\r\n" 
