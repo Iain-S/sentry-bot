@@ -21,13 +21,10 @@ You must install at least one for camera-related features to work.
 To install on a Raspberry Pi, log in and then:
 
 1. Install the project with
-
    ```shell
-   pip install "git+https://github.com/Iain-S/sentry-bot#egg=sentrybot[picamera]"`
+   pip install "git+https://github.com/Iain-S/sentry-bot#egg=sentrybot[picamera]"
    ```
-
    **Note** that we are installing the `[picamera]` extra and that the `"` quotes are required if using `zsh`.
-
 1. _optional_ Manually compile and install OpenCV by following, for example, [these](https://pimylifeup.com/raspberry-pi-opencv/) instructions
 1. Proceed to [Run the Server](#run-the-server)
 
@@ -40,13 +37,10 @@ If your computer has a camera, you can install the `[opencv]` extra.
 You should not try to install the `[picamera]` extra on non-Pi hardware as installation will fail.
 
 1. Install the project with
-
    ```shell
-   pip install "git+https://github.com/Iain-S/sentry-bot#egg=sentrybot[opencv]"`
+   pip install "git+https://github.com/Iain-S/sentry-bot#egg=sentrybot[opencv]"
    ```
-
    **Note** that we are installing the `[opencv]` extra and that the `"` quotes are required if using `zsh`.
-
 1. Proceed to [Run the Server](#run-the-server)
 
 ## Developer Setup
@@ -102,11 +96,9 @@ The formatters and linters specified in [.pre-commit-config.yaml](.pre-commit-co
 
 1. Make a `config.toml` file in the directory you will run the app from
 1. _optional_ Add an environment variable to `config.toml` with the path to a `.mp4` video
-
    ```toml
    VIDEO_PATH='/path/to/any/video.mp4'
    ```
-
 1. _optional_ Build webGL project with Unity and copy the `Build/`, `StreamingAssets/` and `TemplateData/` directories to `sentrybot/static/`.
    This game can be accessed via the `/game` URL.
 1. If you are running on a Pi:
