@@ -1,5 +1,4 @@
 """Generators for video streams that use a Raspberry Pi camera."""
-import time
 import io
 import os
 from threading import Condition
@@ -28,7 +27,7 @@ class StreamingOutput:
     def write(self, buf: bytes) -> int:
         """todo."""
         if buf.startswith(b"\xff\xd8"):
-            #print("writing frame")
+            # print("writing frame")
             # New frame, copy the existing buffer's content and notify all
             # clients it's available
             self.buffer.truncate()
@@ -49,29 +48,26 @@ def generate_camera_video(
     mouse_position: List[int],
 ) -> Generator[bytes, None, None]:
     """Generate a video stream from a Raspberry Pi camera."""
+    del mouse_position
+
     with picamera.PiCamera(resolution=f"{RESOLUTION}", framerate=FRAMERATE) as camera:
         camera.rotation = ROTATION
-        #camera.annotate_background = picamera.Color("black")
+        # camera.annotate_background = picamera.Color("black")
 
         output = StreamingOutput()
         camera.start_recording(output, format="mjpeg")
 
-        # It seems that we need to discard the first frame, in case it is empty
+        # It seems that we need to ignore the first frame, in case it is empty
         with output.condition:
             output.condition.wait()
             print("reading frame")
-            frame = output.frame
 
-        for i in range(1000):
+        while True:
             with output.condition:
                 output.condition.wait()
                 frame = output.frame
 
             yield (
-                b"--frame\r\n" 
-                b"Content-Type: image/jpeg\r\n\r\n" 
-                + frame 
-                + b"\r\n"
+                b"--frame\r\n"
+                b"Content-Type: image/jpeg\r\n" + b"\r\n" + frame + b"\r\n"
             )
-
-    del mouse_position
