@@ -13,7 +13,7 @@ from sentrybot.turret_controller import TurretController
 
 RESOLUTION: Final[str] = os.environ.get("RESOLUTION", "640x480")
 FRAMERATE: Final[int] = int(os.environ.get("FRAMERATE", 2))
-ROTATION: Final[int] = int(os.environ.get("ROTATION", 0))
+ROTATION: Final[int] = int(os.environ.get("ROTATION", 270))
 
 assert ROTATION in (0, 90, 180, 270)
 
