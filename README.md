@@ -109,5 +109,9 @@ The formatters and linters specified in [.pre-commit-config.yaml](.pre-commit-co
 
 1. _optional_ Build webGL project with Unity and copy the `Build/`, `StreamingAssets/` and `TemplateData/` directories to `sentrybot/static/`.
    This game can be accessed via the `/game` URL.
-1. Run the webserver with `flask --app sentrybot --debug run`
-1. Go to `localhost:5000/` in your web browser if running locally or `ip.of.your.pi:5000/` if running on a Pi
+1. If you are running on a Pi:
+   1. Start the pigpio daemon with `sudo pigpiod`
+   1. Run the webserver with `flask --app sentrybot --debug run --host 0.0.0.0` but be aware that **it will make the webserver accessible to all machines on the network**
+1. Else, if you are running on other hardware:
+   1. Run the webserver with `flask --app sentrybot --debug run`
+   1. Go to `localhost:5000/` in your web browser
