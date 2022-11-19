@@ -72,6 +72,8 @@ def create_app(test_config: Optional[Mapping] = None) -> Flask:
             abort(503)
 
         video_path = app.config["VIDEO_PATH"]
+
+        # "frame" is the string that demarcates each frame
         return Response(
             generate_file_video(video_path),
             mimetype="multipart/x-mixed-replace; boundary=frame",
