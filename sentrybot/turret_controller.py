@@ -1,7 +1,7 @@
 """Module for moving, and streaming video from, the physical turret."""
 from time import sleep
 
-from gpiozero import Servo, OutputDevice  # type: ignore
+from gpiozero import OutputDevice, Servo  # type: ignore
 from gpiozero.pins.pigpio import PiGPIOFactory  # type: ignore
 
 
@@ -20,32 +20,34 @@ class TurretController:
         self._left_dc_motor = OutputDevice(5, pin_factory=PiGPIOFactory())
 
     def set_x(self, value: float) -> None:
-        """Set the current objective x value."""
+        """Set the horizontal rotation.
 
-        # if not -1 <= value <= 1:
-        if value < -0.5:
-            value = -0.5
+        Args:
+            value: -1 for down, +1 for up and all the values in-between.
+        """
 
-        if value > 0.5:
-            value = 0.5
+        # Just while we're testing
+        value = min(max(-0.5, value), value)
+        # While we're testing
 
-        #if not -0.5 <= value <= 0.5:
-        #    raise RangeOfMovementError
+        if not -1 <= value <= 1:
+            raise RangeOfMovementError
 
         self._x_servo.value = value
 
     def set_y(self, value: float) -> None:
-        """Set the current objective y value."""
+        """Set the vertical rotation.
 
-        if value < -0.5:
-            value = -0.5
+        Args:
+            value: -1 for left, +1 for right and all the values in-between.
+        """
 
-        if value > 0.5:
-            value = 0.5
+        # Just while we're testing
+        value = min(max(-0.5, value), value)
+        # While we're testing
 
-        # if not -1 <= value <= 1:
-        #if not -0.5 <= value <= 0.5:
-        #    raise RangeOfMovementError
+        if not -1 <= value <= 1:
+            raise RangeOfMovementError
 
         self._y_servo.value = value
 
@@ -53,15 +55,19 @@ class TurretController:
         """Blocks until the turret has fired."""
 
         self._right_dc_motor.on()
+        # May, or may not, be the right length of time
         sleep(0.5)
+        # By activating the motors in turn, we hope to minimise voltage sag
         self._left_dc_motor.on()
 
         self._breach_servo.value = -0.8
 
-        # May, or may not, be necessary
+        # May, or may not, be the right length of time
         sleep(0.01)
 
         self._breach_servo.value = 0
+        # This software-PCM-controlled servo is best detached when not in use
+        # to reduce mechanical noise, hopefully, save CPU cycles
         self._breach_servo.detach()
 
         self._right_dc_motor.off()
