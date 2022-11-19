@@ -9,6 +9,8 @@ import picamera  # type: ignore
 
 # pylint: enable=import-error
 
+from sentrybot.turret_controller import TurretController
+
 RESOLUTION: Final[str] = os.environ.get("RESOLUTION", "640x480")
 FRAMERATE: Final[int] = int(os.environ.get("FRAMERATE", 2))
 ROTATION: Final[int] = int(os.environ.get("ROTATION", 0))
@@ -48,7 +50,9 @@ def generate_camera_video(
     mouse_position: List[int],
 ) -> Generator[bytes, None, None]:
     """Generate a video stream from a Raspberry Pi camera."""
-    del mouse_position
+
+    tc = TurretController()
+
 
     with picamera.PiCamera(resolution=f"{RESOLUTION}", framerate=FRAMERATE) as camera:
         camera.rotation = ROTATION
@@ -63,6 +67,14 @@ def generate_camera_video(
             print("reading frame")
 
         while True:
+
+            if mouse_position:
+                x = mouse_position[0]
+                y = mouse_position[1]
+
+                tc.set_x(-1 * (x/640 - 0.5))  # between -0.5 and +0.5
+                tc.set_y(y/360 - 0.5)  # between -0.5 and +0.5
+
             with output.condition:
                 output.condition.wait()
                 frame = output.frame

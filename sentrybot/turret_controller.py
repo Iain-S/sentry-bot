@@ -1,7 +1,7 @@
 """Module for moving, and streaming video from, the physical turret."""
 from time import sleep
 
-from gpiozero import Servo  # type: ignore
+from gpiozero import Servo, OutputDevice  # type: ignore
 from gpiozero.pins.pigpio import PiGPIOFactory  # type: ignore
 
 
@@ -13,33 +13,56 @@ class TurretController:
     """Controls for the physical turret."""
 
     def __init__(self) -> None:
-        self._x_servo = Servo(13, pin_factory=PiGPIOFactory())
-        self._y_servo = Servo(12, pin_factory=PiGPIOFactory())
-        self._breach_servo = Servo(26, pin_factory=PiGPIOFactory())
+        self._x_servo = Servo(12, pin_factory=PiGPIOFactory())
+        self._y_servo = Servo(13, pin_factory=PiGPIOFactory())
+        self._breach_servo = Servo(17, pin_factory=PiGPIOFactory())
+        self._right_dc_motor = OutputDevice(26, pin_factory=PiGPIOFactory())
+        self._left_dc_motor = OutputDevice(5, pin_factory=PiGPIOFactory())
 
     def set_x(self, value: float) -> None:
         """Set the current objective x value."""
 
         # if not -1 <= value <= 1:
-        if not -0.5 <= value <= 0.5:
-            raise RangeOfMovementError
+        if value < -0.5:
+            value = -0.5
+
+        if value > 0.5:
+            value = 0.5
+
+        #if not -0.5 <= value <= 0.5:
+        #    raise RangeOfMovementError
+
         self._x_servo.value = value
 
     def set_y(self, value: float) -> None:
         """Set the current objective y value."""
 
+        if value < -0.5:
+            value = -0.5
+
+        if value > 0.5:
+            value = 0.5
+
         # if not -1 <= value <= 1:
-        if not -0.5 <= value <= 0.5:
-            raise RangeOfMovementError
+        #if not -0.5 <= value <= 0.5:
+        #    raise RangeOfMovementError
 
         self._y_servo.value = value
 
     def launch(self) -> None:
         """Blocks until the turret has fired."""
 
-        self._breach_servo.value = -0.5
+        self._right_dc_motor.on()
+        sleep(0.5)
+        self._left_dc_motor.on()
+
+        self._breach_servo.value = -0.8
 
         # May, or may not, be necessary
         sleep(0.01)
 
         self._breach_servo.value = 0
+        self._breach_servo.detach()
+
+        self._right_dc_motor.off()
+        self._left_dc_motor.off()
