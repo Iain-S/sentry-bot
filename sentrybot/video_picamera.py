@@ -4,14 +4,10 @@ import os
 from threading import Condition
 from typing import Final, Generator
 
-# pylint: disable=import-error
-import picamera  # type: ignore
+import picamera  # type: ignore # pylint: disable=import-error
 
 from sentrybot.client_instruction import ClientInstruction
 from sentrybot.turret_controller import TurretController
-
-# pylint: enable=import-error
-
 
 RESOLUTION: Final[str] = os.environ.get("RESOLUTION", "640x480")
 FRAME_RATE: Final[int] = int(os.environ.get("FRAME_RATE", 2))
@@ -21,7 +17,7 @@ assert ROTATION in (0, 90, 180, 270)
 
 
 class StreamingOutput:
-    """todo."""
+    """Taken almost entirely from the picamera docs."""
 
     def __init__(self) -> None:
         self.frame: bytes = bytes()
@@ -29,11 +25,9 @@ class StreamingOutput:
         self.condition = Condition()
 
     def write(self, buf: bytes) -> int:
-        """todo."""
+        """Write to our buffer, notifying others when we have a whole frame."""
         if buf.startswith(b"\xff\xd8"):
-            # print("writing frame")
             # New frame, copy the existing buffer's content and notify all
-            # clients it's available
             self.buffer.truncate()
             with self.condition:
                 self.frame = self.buffer.getvalue()
@@ -57,7 +51,6 @@ def generate_camera_video(
 
     with picamera.PiCamera(resolution=f"{RESOLUTION}", framerate=FRAME_RATE) as camera:
         camera.rotation = ROTATION
-        # camera.annotate_background = picamera.Color("black")
 
         output = StreamingOutput()
         camera.start_recording(output, format="mjpeg")
@@ -69,16 +62,20 @@ def generate_camera_video(
 
         while True:
 
-            if client_instruction:
-                x_pixels = client_instruction.x_pos
-                y_pixels = client_instruction.y_pos
+            x_pixels = client_instruction.x_pos
+            y_pixels = client_instruction.y_pos
 
-                turret_controller.set_x(
-                    -1 * (x_pixels / 640 - 0.5)
-                )  # between -0.5 and +0.5
-                turret_controller.set_y(y_pixels / 360 - 0.5)  # between -0.5 and +0.5
+            turret_controller.set_x(
+                -1 * (x_pixels / 640 - 0.5)
+            )  # between -0.5 and +0.5
+            turret_controller.set_y(y_pixels / 360 - 0.5)  # between -0.5 and +0.5
+
+            if client_instruction.should_fire:
+                turret_controller.launch()
+                client_instruction.should_fire = False
 
             with output.condition:
+                # How often we yield is determined by the camera's frame rate
                 output.condition.wait()
                 frame = output.frame
 
