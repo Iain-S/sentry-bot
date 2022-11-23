@@ -33,7 +33,9 @@ class TurretController:
         if not -1 <= value <= 1:
             raise RangeOfMovementError
 
-        self._x_servo.value = value
+        # Try to be more efficient by only setting when we need to
+        if self._x_servo.value != round(value, 14):
+            self._x_servo.value = value
 
     def set_y(self, value: float) -> None:
         """Set the vertical rotation.
@@ -49,7 +51,9 @@ class TurretController:
         if not -1 <= value <= 1:
             raise RangeOfMovementError
 
-        self._y_servo.value = value
+        # Try to be more efficient by only setting when we need to
+        if self._y_servo.value != round(value, 14):
+            self._y_servo.value = value
 
     def launch(self) -> None:
         """Blocks until the turret has fired."""
@@ -67,7 +71,7 @@ class TurretController:
 
         self._breach_servo.value = 0
         # This software-PCM-controlled servo is best detached when not in use
-        # to reduce mechanical noise, hopefully, save CPU cycles
+        # to reduce mechanical noise and, hopefully, save CPU cycles
         self._breach_servo.detach()
 
         self._right_dc_motor.off()
