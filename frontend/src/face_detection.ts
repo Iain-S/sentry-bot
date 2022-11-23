@@ -18,10 +18,7 @@ window.onload = () => {
   box.onmousemove = (event: MouseEvent) => {
     return handleMouseMove(event, xPos, yPos);
   };
-  box.onclick = (event: MouseEvent) => {
-    return handleMouseClick(event, "click");
-  };
-  box.onmousedown = (event: MouseEvent) => {
-    return handleMouseClick(event, "down");
+  box.click = (event: MouseEvent) => {
+    return handleMouseClick(event);
   };
 };
