@@ -1,5 +1,18 @@
-export function handleMouseClick(event: MouseEvent, message: string): void {
-  console.log(message);
+export function handleMouseClick(event: MouseEvent): void {
+  // Send the mouse click to the server
+  const req = new XMLHttpRequest();
+  req.addEventListener("load", (event: ProgressEvent) => {
+    console.log("Mouse click successfully sent");
+  });
+  req.open("POST", "/ajax-data");
+
+  const params = JSON.stringify({
+    shouldFire: true
+  });
+  req.setRequestHeader("Content-type", "application/json; charset=utf-8");
+
+  req.send(params);
+  console.log("Sending Mouse click");
 }
 
 export function handleMouseMove(
@@ -49,7 +62,7 @@ export function handleMouseMove(
     // Send the co-ordinates to the server
     const req = new XMLHttpRequest();
     req.addEventListener("load", (event: ProgressEvent) => {
-      console.log("Mouse movements received");
+      console.log("Mouse movements successfully sent");
     });
     req.open("POST", "/ajax-data");
 
@@ -60,7 +73,7 @@ export function handleMouseMove(
     req.setRequestHeader("Content-type", "application/json; charset=utf-8");
 
     req.send(params);
-    console.log("Mouse movements sent");
+    console.log("Sending mouse movements");
   } else {
     console.log("Could not determine event target.");
   }
