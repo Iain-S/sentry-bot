@@ -1,4 +1,4 @@
-export function handleMouseClick(event: MouseEvent): void {
+export function handleMouseClick(): void {
   // Send the mouse click to the server
   const req = new XMLHttpRequest();
   req.addEventListener("load", (event: ProgressEvent) => {
@@ -7,7 +7,7 @@ export function handleMouseClick(event: MouseEvent): void {
   req.open("POST", "/ajax-data");
 
   const params = JSON.stringify({
-    shouldFire: true
+    shouldFire: true,
   });
   req.setRequestHeader("Content-type", "application/json; charset=utf-8");
 
