@@ -1,4 +1,4 @@
-import { handleMouseMove } from "./mouse.js";
+import { handleMouseMove, handleMouseClick } from "./mouse.js";
 window.onload = () => {
     const xPos = document.querySelector("#xpos");
     const yPos = document.querySelector("#ypos");
@@ -13,5 +13,11 @@ window.onload = () => {
     }
     box.onmousemove = (event) => {
         return handleMouseMove(event, xPos, yPos);
+    };
+    box.onclick = (event) => {
+        return handleMouseClick(event, "click");
+    };
+    box.onmousedown = (event) => {
+        return handleMouseClick(event, "down");
     };
 };

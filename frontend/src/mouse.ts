@@ -1,3 +1,7 @@
+export function handleMouseClick(event: MouseEvent, message: string): void {
+  console.log(message);
+}
+
 export function handleMouseMove(
   event: MouseEvent,
   xPos: HTMLInputElement,
@@ -32,7 +36,7 @@ export function handleMouseMove(
   dot.className = "dot";
   dot.style.left = pageX + "px";
   dot.style.top = pageY + "px";
-  document.body.appendChild(dot);
+  //  document.body.appendChild(dot);
 
   if (event.currentTarget != null) {
     const currentTarget = event.currentTarget as HTMLElement;

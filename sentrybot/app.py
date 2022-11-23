@@ -2,13 +2,15 @@
 import importlib
 from datetime import datetime
 from pathlib import Path
-from typing import Callable, Generator, List, Mapping, Optional
+from typing import Callable, Generator, Mapping, Optional
 
 import toml
 from flask import Flask, Response, abort, render_template, request, send_from_directory
 
+from sentrybot.client_instruction import ClientInstruction
+
 generate_camera_video: Optional[
-    Callable[[List[int]], Generator[bytes, None, None]]
+    Callable[[ClientInstruction], Generator[bytes, None, None]]
 ] = None
 generate_file_video: Optional[Callable[[str], Generator[bytes, None, None]]] = None
 
@@ -28,7 +30,7 @@ elif importlib.util.find_spec("picamera"):
 def create_app(test_config: Optional[Mapping] = None) -> Flask:
     """Create and configure the app."""
     # pylint: disable=inconsistent-return-statements
-    mouse_position: List[int] = []
+    turret_instruction = ClientInstruction(0, 0, False)
 
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
@@ -58,7 +60,7 @@ def create_app(test_config: Optional[Mapping] = None) -> Flask:
             abort(503)
 
         return Response(
-            generate_camera_video(mouse_position),
+            generate_camera_video(turret_instruction),
             mimetype="multipart/x-mixed-replace; boundary=frame",
         )
 
@@ -86,14 +88,21 @@ def create_app(test_config: Optional[Mapping] = None) -> Flask:
     @app.route("/ajax-data", methods=["POST", "GET"])
     def ajax_data() -> dict:
         if request.method == "POST":
-            if request.json and "xPos" in request.json and "yPos" in request.json:
-                mouse_position[0:2] = [
-                    int(round(request.json["xPos"], 0)),
-                    int(round(request.json["yPos"], 0)),
-                ]
+
+            if not request.json:
+                abort(404, description="Missing JSON payload")
+
+            if "xPos" in request.json and "yPos" in request.json:
+                turret_instruction.x_pos = int(round(request.json["xPos"], 0))
+                turret_instruction.y_pos = int(round(request.json["yPos"], 0))
                 return {}
 
-            abort(404, description="One or more of xPos and yPos are missing")
+            if "shouldFire" in request.json:
+                turret_instruction.should_fire = True
+                return {}
+
+            abort(404, description="xPos, yPos and shouldFire missing from JSON")
+
         else:
             # Return a dict, which will be JSONified automatically
             return {"theDate": datetime.now()}
