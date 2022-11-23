@@ -2,9 +2,11 @@
 import logging
 from pathlib import Path
 from time import sleep
-from typing import Generator, List
+from typing import Generator
 
 import cv2  # type: ignore
+
+from sentrybot.client_instruction import ClientInstruction
 
 
 def generate_file_video(video_path: str) -> Generator[bytes, None, None]:
@@ -36,7 +38,7 @@ def generate_file_video(video_path: str) -> Generator[bytes, None, None]:
 
 
 def generate_camera_video(
-    mouse_position: List[int],
+    turret_instruction: ClientInstruction,
 ) -> Generator[bytes, None, None]:
     """Generate a video stream from a camera, with face detection rectangles."""
     # pylint: disable=no-member,invalid-name,too-many-locals
@@ -72,9 +74,9 @@ def generate_camera_video(
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
         # Draw a dot where the mouse is
-        if mouse_position:
-            mouse_x = mouse_position[0]
-            mouse_y = mouse_position[1]
+        if turret_instruction:
+            mouse_x = turret_instruction.x_pos
+            mouse_y = turret_instruction.y_pos
             logging.debug("x:%s  y:%s", mouse_x, mouse_y)
             cv2.rectangle(
                 frame,

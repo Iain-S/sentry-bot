@@ -2,11 +2,12 @@
 import io
 import os
 from threading import Condition
-from typing import Final, Generator, List
+from typing import Final, Generator
 
 # pylint: disable=import-error
 import picamera  # type: ignore
 
+from sentrybot.client_instruction import ClientInstruction
 from sentrybot.turret_controller import TurretController
 
 # pylint: enable=import-error
@@ -48,7 +49,7 @@ def generate_file_video(video_path: str) -> Generator[bytes, None, None]:
 
 
 def generate_camera_video(
-    mouse_position: List[int],
+    client_instruction: ClientInstruction,
 ) -> Generator[bytes, None, None]:
     """Generate a video stream from a Raspberry Pi camera."""
 
@@ -68,9 +69,9 @@ def generate_camera_video(
 
         while True:
 
-            if mouse_position:
-                x_pixels = mouse_position[0]
-                y_pixels = mouse_position[1]
+            if client_instruction:
+                x_pixels = client_instruction.x_pos
+                y_pixels = client_instruction.y_pos
 
                 turret_controller.set_x(
                     -1 * (x_pixels / 640 - 0.5)

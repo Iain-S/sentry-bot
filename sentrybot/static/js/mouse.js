@@ -1,3 +1,6 @@
+export function handleMouseClick(event, message) {
+    console.log(message);
+}
 export function handleMouseMove(event, xPos, yPos) {
     // On a MouseEvent, draw a dot where the cursor is.
     let x, y, pageX, pageY;
@@ -23,7 +26,7 @@ export function handleMouseMove(event, xPos, yPos) {
     dot.className = "dot";
     dot.style.left = pageX + "px";
     dot.style.top = pageY + "px";
-    document.body.appendChild(dot);
+    //  document.body.appendChild(dot);
     if (event.currentTarget != null) {
         const currentTarget = event.currentTarget;
         const boundingRect = currentTarget.getBoundingClientRect();
