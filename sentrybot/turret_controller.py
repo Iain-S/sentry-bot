@@ -60,9 +60,10 @@ class TurretController:
 
         self._right_dc_motor.on()
         # May, or may not, be the right length of time
-        sleep(0.5)
+        sleep(1.0)
         # By activating the motors in turn, we hope to minimise voltage sag
         self._left_dc_motor.on()
+        sleep(1.0)
 
         self._breach_servo.value = -0.8
 
