@@ -68,9 +68,10 @@ class TurretController:
         self._breach_servo.value = -0.8
 
         # May, or may not, be the right length of time
-        sleep(0.01)
+        sleep(0.5)
 
         self._breach_servo.value = 0
+        sleep(0.5)
         # This software-PCM-controlled servo is best detached when not in use
         # to reduce mechanical noise and, hopefully, save CPU cycles
         self._breach_servo.detach()
