@@ -25,13 +25,20 @@ class TurretController:
         Args:
             value: -1 for down, +1 for up and all the values in-between.
         """
+        print("set_x", value)
 
         # Just while we're testing
-        value = min(max(-0.5, value), value)
+        #value = min(max(0.9, value), -0.9)
+        if value < -0.9:
+            value = -0.9
+        if value > 0.9:
+            value = 0.9
         # While we're testing
 
         if not -1 <= value <= 1:
-            raise RangeOfMovementError
+            #raise RangeOfMovementError
+            print("xerror: ", value)
+            return
 
         # Try to be more efficient by only setting when we need to
         if self._x_servo.value != round(value, 14):
@@ -43,13 +50,20 @@ class TurretController:
         Args:
             value: -1 for left, +1 for right and all the values in-between.
         """
+        print("set_y", value)
 
         # Just while we're testing
-        value = min(max(-0.5, value), value)
+        if value < -0.9:
+            value = -0.9
+        if value > 0.9:
+            value = 0.9
+        #value = min(max(0.9, value), -0.9)
         # While we're testing
 
         if not -1 <= value <= 1:
-            raise RangeOfMovementError
+            #raise RangeOfMovementError
+            print("xerror: ", value)
+            return
 
         # Try to be more efficient by only setting when we need to
         if self._y_servo.value != round(value, 14):

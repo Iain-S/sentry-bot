@@ -30,7 +30,7 @@ elif importlib.util.find_spec("picamera"):
 def create_app(test_config: Optional[Mapping] = None) -> Flask:
     """Create and configure the app."""
     # pylint: disable=inconsistent-return-statements
-    turret_instruction = ClientInstruction(0, 0, False)
+    turret_instruction = ClientInstruction(0.0, 0.0, False)
 
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
@@ -93,8 +93,8 @@ def create_app(test_config: Optional[Mapping] = None) -> Flask:
                 abort(404, description="Missing JSON payload")
 
             if "xPos" in request.json and "yPos" in request.json:
-                turret_instruction.x_pos = int(round(request.json["xPos"], 0))
-                turret_instruction.y_pos = int(round(request.json["yPos"], 0))
+                turret_instruction.x_pos = request.json["xPos"]
+                turret_instruction.y_pos = request.json["yPos"]
                 return {}
 
             if "shouldFire" in request.json:
