@@ -15,7 +15,6 @@ window.onload = () => {
         return handleMouseMove(event, xPos, yPos);
     };
     box.onclick = () => {
-        console.log("1");
         return handleMouseClick();
     };
 };

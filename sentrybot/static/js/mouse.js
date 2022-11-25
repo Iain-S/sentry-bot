@@ -1,5 +1,4 @@
 export function handleMouseClick() {
-    console.log("2");
     // Send the mouse click to the server
     const req = new XMLHttpRequest();
     req.addEventListener("load", (event) => {
