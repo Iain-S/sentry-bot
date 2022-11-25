@@ -48,38 +48,39 @@ def generate_camera_video(
     """Generate a video stream from a Raspberry Pi camera."""
 
     turret_controller = TurretController()
+    try:
 
-    with picamera.PiCamera(resolution=f"{RESOLUTION}", framerate=FRAME_RATE) as camera:
-        camera.rotation = ROTATION
+        with picamera.PiCamera(resolution=f"{RESOLUTION}", framerate=FRAME_RATE) as camera:
+            camera.rotation = ROTATION
 
-        output = StreamingOutput()
-        camera.start_recording(output, format="mjpeg")
+            output = StreamingOutput()
+            camera.start_recording(output, format="mjpeg")
 
-        # It seems that we need to ignore the first frame, in case it is empty
-        with output.condition:
-            output.condition.wait()
-            print("reading frame")
-
-        while True:
-
-            x_pixels = client_instruction.x_pos
-            y_pixels = client_instruction.y_pos
-
-            turret_controller.set_x(
-                -1 * (x_pixels / 640 - 0.5)
-            )  # between -0.5 and +0.5
-            turret_controller.set_y(y_pixels / 360 - 0.5)  # between -0.5 and +0.5
-
-            if client_instruction.should_fire:
-                turret_controller.launch()
-                client_instruction.should_fire = False
-
+            # It seems that we need to ignore the first frame, in case it is empty
             with output.condition:
-                # How often we yield is determined by the camera's frame rate
                 output.condition.wait()
-                frame = output.frame
+                print("reading frame")
 
-            yield (
-                b"--frame\r\n"
-                b"Content-Type: image/jpeg\r\n" + b"\r\n" + frame + b"\r\n"
-            )
+            while True:
+
+                turret_controller.set_x(0.9 * client_instruction.x_pos)
+                turret_controller.set_y(0.9 * client_instruction.y_pos)
+
+                if client_instruction.should_fire:
+                    turret_controller.launch()
+                    client_instruction.should_fire = False
+
+                with output.condition:
+                    # How often we yield is determined by the camera's frame rate
+                    output.condition.wait()
+                    frame = output.frame
+
+                yield (
+                    b"--frame\r\n"
+                    b"Content-Type: image/jpeg\r\n" + b"\r\n" + frame + b"\r\n"
+                )
+    finally:
+        print("finally")
+        turret_controller.set_x(0)
+        turret_controller.set_y(0)
+        turret_controller._breach_servo = 0
