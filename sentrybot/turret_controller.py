@@ -15,9 +15,11 @@ class TurretController:
     def __init__(self) -> None:
         self._x_servo = Servo(12, pin_factory=PiGPIOFactory())
         self._y_servo = Servo(13, pin_factory=PiGPIOFactory())
-        self._breach_servo = Servo(17, pin_factory=PiGPIOFactory())
+
         self._right_dc_motor = OutputDevice(26, pin_factory=PiGPIOFactory())
         self._left_dc_motor = OutputDevice(5, pin_factory=PiGPIOFactory())
+
+        self._breach_servo = Servo(17, pin_factory=PiGPIOFactory())
 
     def set_x(self, value: float) -> None:
         """Set the horizontal rotation.
@@ -81,7 +83,10 @@ class TurretController:
         self._left_dc_motor.off()
 
     def reset(self) -> None:
-        """Reset servos to their starting positions."""
+        """Blocks until servos have been reset to their starting positions."""
         self.set_x(0)
         self.set_y(0)
-        self._breach_servo = 0
+        self._breach_servo.value = 0
+        sleep(0.5)
+        self._breach_servo.detach()
+

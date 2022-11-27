@@ -3,12 +3,14 @@ import logging
 import socketserver
 from http import server
 from threading import Condition
+from time import sleep
+from typing import Final
 
 import picamera  # type: ignore # pylint: disable=import-error
 
 from sentrybot.turret_controller import TurretController
 
-turret_controller = TurretController()
+turret_controller: Final[TurretController] = TurretController()
 
 PAGE = """\
 <html>
@@ -119,11 +121,16 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 with picamera.PiCamera(resolution="640x480", framerate=24) as camera:
 
     output = StreamingOutput()
+    camera.rotation = 270
     camera.start_recording(output, format="mjpeg")
     try:
         address = ("", 8000)
         my_server = StreamingServer(address, StreamingHandler)
         logging.warning("serving")
         my_server.serve_forever()
+    except KeyboardInterrupt:
+        pass
     finally:
+        logging.warning("exiting")
         camera.stop_recording()
+        turret_controller.reset()
