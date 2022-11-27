@@ -2,6 +2,7 @@
 import io
 import os
 from threading import Condition
+from time import sleep
 from typing import Final, Generator
 
 import picamera  # type: ignore # pylint: disable=import-error
@@ -50,7 +51,9 @@ def generate_camera_video(
     turret_controller = TurretController()
     try:
 
-        with picamera.PiCamera(resolution=f"{RESOLUTION}", framerate=FRAME_RATE) as camera:
+        with picamera.PiCamera(
+            resolution=f"{RESOLUTION}", framerate=FRAME_RATE
+        ) as camera:
             camera.rotation = ROTATION
 
             output = StreamingOutput()
@@ -81,6 +84,5 @@ def generate_camera_video(
                 )
     finally:
         print("finally")
-        turret_controller.set_x(0)
-        turret_controller.set_y(0)
-        turret_controller._breach_servo = 0
+        turret_controller.reset()
+        sleep(0.5)

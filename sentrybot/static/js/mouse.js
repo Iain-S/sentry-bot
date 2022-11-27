@@ -42,15 +42,8 @@ export function handleMouseMove(event, xPos, yPos) {
         const currentTarget = event.currentTarget;
         const boundingRect = currentTarget.getBoundingClientRect();
         // Write the positions to the text boxes
-        let xnew = x - (boundingRect.x + (boundingRect.width / 2));
-        xnew = xnew / (boundingRect.width/2);
-        xnew = xnew * -1.0
-        let ynew = y - (boundingRect.y + (boundingRect.height / 2));
-        ynew = ynew / (boundingRect.height/2);
-
-        xPos.value = xnew.toString();
-        yPos.value = ynew.toString();
-
+        xPos.value = (x - boundingRect.x).toString();
+        yPos.value = (y - boundingRect.y).toString();
         // Send the co-ordinates to the server
         const req = new XMLHttpRequest();
         req.addEventListener("load", (event) => {
@@ -58,10 +51,9 @@ export function handleMouseMove(event, xPos, yPos) {
         });
         req.open("POST", "/ajax-data");
         const params = JSON.stringify({
-            xPos: xnew,
-            yPos: ynew,
+            xPos: x - boundingRect.x,
+            yPos: y - boundingRect.y,
         });
-        console.log(params);
         req.setRequestHeader("Content-type", "application/json; charset=utf-8");
         req.send(params);
         console.log("Sending mouse movements");
