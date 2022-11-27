@@ -5,6 +5,7 @@ from http import server
 from threading import Condition
 from time import sleep
 from typing import Final
+from urllib.parse import parse_qs
 
 import picamera  # type: ignore # pylint: disable=import-error
 
@@ -19,19 +20,30 @@ PAGE = """\
 </head>
 <body>
 <script>
+    function formatParams( params ){
+      return "?" + Object
+            .keys(params)
+            .map(function(key){
+              return key+"="+encodeURIComponent(params[key])
+            })
+            .join("&");
+    }
+
     function handleMouseClick(event) {
         console.log("mouse click");
         const req = new XMLHttpRequest();
         req.addEventListener("load", (event) => {
             console.log("Mouse movements successfully sent");
         });
-        req.open("GET", "/ajax-data");
         const params = JSON.stringify({
             "key": "value",
         });
+        req.open("GET", "/ajax-data" + formatParams({"key": "values"}));
         req.setRequestHeader("Content-type", "application/json; charset=utf-8");
-        req.send(params);
+        req.send();
+        //req.send(params);
     }
+
     window.onload = () => {
         const box = document.querySelector(".etch-a-sketch");
         box.onclick = (event) => {
@@ -67,7 +79,7 @@ class StreamingOutput:
         return self.buffer.write(buf)
 
 
-class StreamingHandler(server.BaseHTTPRequestHandler):
+class StreamingHandler(server.SimpleHTTPRequestHandler):
     def do_GET(self) -> None:
         if self.path == "/":
             self.send_response(301)
@@ -105,12 +117,14 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     "Removed streaming client %s: %s", self.client_address, str(e)
                 )
                 raise
-        elif self.path == "/ajax-data":
-            logging.warning("received ajax data")
-            turret_controller.launch()
+        elif self.path.startswith("/ajax-data"):
+            parsed = parse_qs(self.path[len("/ajax-data?"):])
+            logging.warning("received ajax data: {}".format(parsed))
+            #turret_controller.launch()
         else:
-            self.send_error(404)
-            self.end_headers()
+            #self.send_error(404)
+            #self.end_headers()
+            super().do_GET()
 
 
 class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
