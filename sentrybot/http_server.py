@@ -76,7 +76,13 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
         elif self.path.startswith("/ajax-data"):
             parsed = parse_qs(self.path[len("/ajax-data?") :])
             logging.warning("received ajax data: {}".format(parsed))
-            # turret_controller.launch()
+
+            if "shouldFire" in parsed and parsed["shouldFire"][0]:
+                turret_controller.launch()
+
+            elif "xPos" in parsed and "yPos" in parsed:
+                turret_controller.set_x(float(parsed["xPos"][0]))
+                turret_controller.set_y(float(parsed["yPos"][0]))
 
             # Still getting ERR_EMPTY_RESPONSE
             self.send_response(200)
