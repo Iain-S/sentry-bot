@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon-16x16.png">
     <link rel="stylesheet" href="static/css/sentrybot.css">
-    <script type="module" src="static/js/face_detection.js"></script>
+    <!--<script type="module" src="static/js/face_detection.js"></script>-->
 </head>
 <body>
 <p>Video streaming with picamera.</p>
@@ -37,13 +37,9 @@
         req.addEventListener("load", (event) => {
             console.log("Mouse movements successfully sent");
         });
-        const params = JSON.stringify({
-            "key": "value",
-        });
         req.open("GET", "/ajax-data" + formatParams({"key": "values"}));
         req.setRequestHeader("Content-type", "application/json; charset=utf-8");
         req.send();
-        //req.send(params);
     }
 
     window.onload = () => {

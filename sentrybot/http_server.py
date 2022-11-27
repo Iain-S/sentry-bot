@@ -12,52 +12,6 @@ from sentrybot.turret_controller import TurretController
 
 turret_controller: Final[TurretController] = TurretController()
 
-POGE = """\
-<html>
-<head>
-<title>picamera MJPEG streaming demo</title>
-</head>
-<body>
-<script>
-    function formatParams( params ){
-      return "?" + Object
-            .keys(params)
-            .map(function(key){
-              return key+"="+encodeURIComponent(params[key])
-            })
-            .join("&");
-    }
-
-    function handleMouseClick(event) {
-        console.log("mouse click");
-        const req = new XMLHttpRequest();
-        req.addEventListener("load", (event) => {
-            console.log("Mouse movements successfully sent");
-        });
-        const params = JSON.stringify({
-            "key": "value",
-        });
-        req.open("GET", "/ajax-data" + formatParams({"key": "values"}));
-        req.setRequestHeader("Content-type", "application/json; charset=utf-8");
-        req.send();
-        //req.send(params);
-    }
-
-    window.onload = () => {
-        const box = document.querySelector(".etch-a-sketch");
-        box.onclick = (event) => {
-            handleMouseClick(event);
-        }
-    }
-</script>
-<h1>PiCamera MJPEG Streaming Demo</h1>
-<img src="stream.mjpg" width="640" height="480" />
-<div class="etch-a-sketch" style="background-color: #EBEBEB;" width="640" height="480">
-ajax_data
-<div>
-</body>
-</html>
-"""
 
 with open("templates/simpleserver.html", "r") as the_file:
     PAGE: Final[str] = the_file.read()
@@ -123,6 +77,9 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
             parsed = parse_qs(self.path[len("/ajax-data?") :])
             logging.warning("received ajax data: {}".format(parsed))
             # turret_controller.launch()
+
+            # Still getting ERR_EMPTY_RESPONSE
+            self.send_response(200)
         else:
             # self.send_error(404)
             # self.end_headers()
