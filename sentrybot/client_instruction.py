@@ -6,6 +6,6 @@ from dataclasses import dataclass
 class ClientInstruction:
     """A container for instructions from client to server."""
 
-    x_pos: int
-    y_pos: int
+    x_pos: float
+    y_pos: float
     should_fire: bool

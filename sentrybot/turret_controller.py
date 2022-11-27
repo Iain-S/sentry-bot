@@ -25,20 +25,14 @@ class TurretController:
         Args:
             value: -1 for down, +1 for up and all the values in-between.
         """
-        print("set_x", value)
-
-        # Just while we're testing
-        #value = min(max(0.9, value), -0.9)
-        if value < -0.9:
-            value = -0.9
-        if value > 0.9:
-            value = 0.9
-        # While we're testing
-
         if not -1 <= value <= 1:
-            #raise RangeOfMovementError
+            # raise RangeOfMovementError
             print("xerror: ", value)
             return
+
+        # Just while we're testing
+        value = max(min(0.9, value), -0.9)
+        # While we're testing
 
         # Try to be more efficient by only setting when we need to
         if self._x_servo.value != round(value, 14):
@@ -50,20 +44,13 @@ class TurretController:
         Args:
             value: -1 for left, +1 for right and all the values in-between.
         """
-        print("set_y", value)
+        if not -1 <= value <= 1:
+            # raise RangeOfMovementError
+            print("yerror: ", value)
 
         # Just while we're testing
-        if value < -0.9:
-            value = -0.9
-        if value > 0.9:
-            value = 0.9
-        #value = min(max(0.9, value), -0.9)
+        value = max(min(0.9, value), -0.9)
         # While we're testing
-
-        if not -1 <= value <= 1:
-            #raise RangeOfMovementError
-            print("xerror: ", value)
-            return
 
         # Try to be more efficient by only setting when we need to
         if self._y_servo.value != round(value, 14):
@@ -92,3 +79,9 @@ class TurretController:
 
         self._right_dc_motor.off()
         self._left_dc_motor.off()
+
+    def reset(self) -> None:
+        """Reset servos to their starting positions."""
+        self.set_x(0)
+        self.set_y(0)
+        self._breach_servo = 0
