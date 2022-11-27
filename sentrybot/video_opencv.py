@@ -78,13 +78,13 @@ def generate_camera_video(
             mouse_x = turret_instruction.x_pos
             mouse_y = turret_instruction.y_pos
             logging.debug("x:%s  y:%s", mouse_x, mouse_y)
-            cv2.rectangle(
-                frame,
-                (mouse_x, mouse_y),
-                (mouse_x + 10, mouse_y + 10),
-                (255, 0, 0),
-                4,
-            )
+            # cv2.rectangle(
+            #     frame,
+            #     (mouse_x, mouse_y),
+            #     (mouse_x + 10, mouse_y + 10),
+            #     (255, 0, 0),
+            #     4,
+            # )
 
         # Encode the frame in JPEG format
         (flag, encoded_image) = cv2.imencode(".jpg", frame)
