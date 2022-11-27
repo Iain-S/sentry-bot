@@ -1,17 +1,24 @@
-export function handleMouseClick(): void {
+function formatParams(params: any): any {
+  return (
+    "?" +
+    Object.keys(params)
+      .map(function (key) {
+        return key + "=" + encodeURIComponent(params[key]);
+      })
+      .join("&")
+  );
+}
+export function handleMouseClick() {
   // Send the mouse click to the server
   const req = new XMLHttpRequest();
   req.addEventListener("load", (event: ProgressEvent) => {
     console.log("Mouse click successfully sent");
   });
-  req.open("POST", "/ajax-data");
+  req.open("GET", "/ajax-data" + formatParams({ shouldFire: true }));
 
-  const params = JSON.stringify({
-    shouldFire: true,
-  });
   req.setRequestHeader("Content-type", "application/json; charset=utf-8");
 
-  req.send(params);
+  req.send();
   console.log("Sending Mouse click");
 }
 
@@ -70,15 +77,11 @@ export function handleMouseMove(
     req.addEventListener("load", (event: ProgressEvent) => {
       console.log("Mouse movements successfully sent");
     });
-    req.open("POST", "/ajax-data");
+    req.open("GET", "/ajax-data" + formatParams({ xPos: xNew, yPos: yNew }));
 
-    const params = JSON.stringify({
-      xPos: xNew,
-      yPos: yNew,
-    });
     req.setRequestHeader("Content-type", "application/json; charset=utf-8");
 
-    req.send(params);
+    req.send();
     console.log("Sending mouse movements");
   } else {
     console.log("Could not determine event target.");

@@ -14,7 +14,7 @@ window.onload = () => {
     let enableHandler = false;
     window.setInterval(() => {
         enableHandler = true;
-    }, 1000);
+    }, 100);
     box.onmousemove = (event) => {
         if (enableHandler) {
             handleMouseMove(event, xPos, yPos);
