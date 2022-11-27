@@ -89,4 +89,3 @@ class TurretController:
         self._breach_servo.value = 0
         sleep(0.5)
         self._breach_servo.detach()
-

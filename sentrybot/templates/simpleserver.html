@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon-16x16.png">
+    <link rel="stylesheet" href="static/css/sentrybot.css">
+    <script type="module" src="static/js/face_detection.js"></script>
+</head>
+<body>
+<p>Video streaming with picamera.</p>
+<img src="stream.mjpg" width="640" height="480" alt="webcam feed"/>
+<div class='etch-a-sketch' style="width:640px;height:360px;border:2px solid #000;"></div>
+<p>Hold ctrl and move your mouse in the box to aim the turret.</p>
+<p>Click anywhere to launch a projectile.</p>
+<form>
+    <label for="xpos">X Position:</label>
+    <input type="text" id="xpos" readonly><br>
+    <label for="ypos">Y Position:</label>
+    <input type="text" id="ypos" readonly><br>
+</form>
+<script>
+    function formatParams( params ){
+      return "?" + Object
+            .keys(params)
+            .map(function(key){
+              return key+"="+encodeURIComponent(params[key])
+            })
+            .join("&");
+    }
+
+    function handleMouseClick(event) {
+        console.log("mouse click");
+        const req = new XMLHttpRequest();
+        req.addEventListener("load", (event) => {
+            console.log("Mouse movements successfully sent");
+        });
+        const params = JSON.stringify({
+            "key": "value",
+        });
+        req.open("GET", "/ajax-data" + formatParams({"key": "values"}));
+        req.setRequestHeader("Content-type", "application/json; charset=utf-8");
+        req.send();
+        //req.send(params);
+    }
+
+    window.onload = () => {
+        const box = document.querySelector(".etch-a-sketch");
+        box.onclick = (event) => {
+            handleMouseClick(event);
+        }
+    }
+</script>
+</body>
+</html>

@@ -3,7 +3,6 @@ import logging
 import socketserver
 from http import server
 from threading import Condition
-from time import sleep
 from typing import Final
 from urllib.parse import parse_qs
 
@@ -13,7 +12,7 @@ from sentrybot.turret_controller import TurretController
 
 turret_controller: Final[TurretController] = TurretController()
 
-PAGE = """\
+POGE = """\
 <html>
 <head>
 <title>picamera MJPEG streaming demo</title>
@@ -59,6 +58,9 @@ ajax_data
 </body>
 </html>
 """
+
+with open("templates/simpleserver.html", "r") as the_file:
+    PAGE: Final[str] = the_file.read()
 
 
 class StreamingOutput:
@@ -118,12 +120,12 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
                 )
                 raise
         elif self.path.startswith("/ajax-data"):
-            parsed = parse_qs(self.path[len("/ajax-data?"):])
+            parsed = parse_qs(self.path[len("/ajax-data?") :])
             logging.warning("received ajax data: {}".format(parsed))
-            #turret_controller.launch()
+            # turret_controller.launch()
         else:
-            #self.send_error(404)
-            #self.end_headers()
+            # self.send_error(404)
+            # self.end_headers()
             super().do_GET()
 
 
