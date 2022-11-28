@@ -1,4 +1,4 @@
-function formatParams(params: any): any {
+function formatParams(params: any): string {
   return (
     "?" +
     Object.keys(params)
