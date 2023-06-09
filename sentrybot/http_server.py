@@ -52,7 +52,9 @@ TURRET_CONTROLLER: Final[Union[TurretController, MagicMock]] = (
 )
 
 
-with Path("templates/simpleserver.html").open("r", encoding="utf-8") as the_file:
+with (Path(__file__).parent.resolve() / "templates/simpleserver.html").open(
+    "r", encoding="utf-8"
+) as the_file:
     PAGE: Final[str] = the_file.read()
 
 
