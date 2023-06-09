@@ -1,7 +1,9 @@
+"""A webserver to control the robot."""
 import io
 import logging
 import socketserver
 from http import server
+from pathlib import Path
 from threading import Condition
 from typing import Final
 from urllib.parse import parse_qs
@@ -10,20 +12,23 @@ import picamera  # type: ignore # pylint: disable=import-error
 
 from sentrybot.turret_controller import TurretController
 
-turret_controller: Final[TurretController] = TurretController()
+TURRET_CONTROLLER: Final[TurretController] = TurretController()
 
 
-with open("templates/simpleserver.html", "r") as the_file:
+with Path("templates/simpleserver.html").open("r", encoding="utf-8") as the_file:
     PAGE: Final[str] = the_file.read()
 
 
 class StreamingOutput:
+    """Implements a write() method for PiCamera to send video to."""
+
     def __init__(self) -> None:
         self.frame = bytes()
         self.buffer = io.BytesIO()
         self.condition = Condition()
 
     def write(self, buf: bytes) -> int:
+        """Write the bytes to a buffer and notify clients."""
         if buf.startswith(b"\xff\xd8"):
             # New frame, copy the existing buffer's content and notify all
             # clients it's available
@@ -36,6 +41,8 @@ class StreamingOutput:
 
 
 class StreamingHandler(server.SimpleHTTPRequestHandler):
+    """Handle HTTP requests."""
+
     def do_GET(self) -> None:
         if self.path == "/":
             self.send_response(301)
@@ -75,14 +82,14 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
                 raise
         elif self.path.startswith("/ajax-data"):
             parsed = parse_qs(self.path[len("/ajax-data?") :])
-            logging.warning("received ajax data: {}".format(parsed))
+            logging.warning("received ajax data: %s", parsed)
 
             if "shouldFire" in parsed and parsed["shouldFire"][0]:
-                turret_controller.launch()
+                TURRET_CONTROLLER.launch()
 
             elif "xPos" in parsed and "yPos" in parsed:
-                turret_controller.set_x(float(parsed["xPos"][0]))
-                turret_controller.set_y(float(parsed["yPos"][0]))
+                TURRET_CONTROLLER.set_x(float(parsed["xPos"][0]))
+                TURRET_CONTROLLER.set_y(float(parsed["yPos"][0]))
 
             # Still getting ERR_EMPTY_RESPONSE
             self.send_response(200)
@@ -93,6 +100,8 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
 
 
 class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
+    """An HTTP server."""
+
     allow_reuse_address = True
     daemon_threads = True
 
@@ -112,4 +121,4 @@ with picamera.PiCamera(resolution="640x480", framerate=24) as camera:
     finally:
         logging.warning("exiting")
         camera.stop_recording()
-        turret_controller.reset()
+        TURRET_CONTROLLER.reset()
