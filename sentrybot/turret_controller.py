@@ -27,10 +27,6 @@ class TurretController:
         Args:
             value: -1 for down, +1 for up and all the values in-between.
         """
-        if not -1 <= value <= 1:
-            # raise RangeOfMovementError
-            print("xerror: ", value)
-            return
 
         # Just while we're testing
         value = max(min(0.9, value), -0.9)
