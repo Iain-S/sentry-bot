@@ -29,8 +29,8 @@ class TurretController:
         """
 
         # Just while we're testing
-        value = max(min(0.9, value), -0.9)
-        # While we're testing
+        value = value if value > -0.9 else -0.9
+        value = value if value < 0.9 else 0.9
 
         # Try to be more efficient by only setting when we need to
         if self._x_servo.value != round(value, 14):
@@ -42,13 +42,8 @@ class TurretController:
         Args:
             value: -1 for left, +1 for right and all the values in-between.
         """
-        if not -1 <= value <= 1:
-            # raise RangeOfMovementError
-            print("yerror: ", value)
-
-        # Just while we're testing
-        value = max(min(0.9, value), -0.9)
-        # While we're testing
+        value = value if value > -0.9 else -0.9
+        value = value if value < 0.9 else 0.9
 
         # Try to be more efficient by only setting when we need to
         if self._y_servo.value != round(value, 14):

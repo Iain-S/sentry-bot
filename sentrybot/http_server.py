@@ -123,17 +123,13 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 
 
 def main() -> None:
-    """Fire up a web server."""
+    """Start a webserver to stream PiCamera video."""
     settings = Settings()
-
     turret = TurretController() if settings.control_turret else None
 
-    if settings.camera_library is CameraLibrary.OPENCV:
-        run(settings, turret)
+    if turret:
+        StreamingHandler.set_turret(turret)
 
-
-def run(settings: Settings, turret: Optional[TurretController]) -> None:
-    """Start a webserver to stream PiCamera video."""
     if settings.camera_library is CameraLibrary.PICAMERA:
         import picamera  # type: ignore
 
@@ -142,7 +138,7 @@ def run(settings: Settings, turret: Optional[TurretController]) -> None:
     else:
         from sentrybot.video_opencv import OpenCVCamera
 
-        camera = OpenCVCamera()
+        camera = OpenCVCamera(turret)
 
     camera.start_recording(OUTPUT, format="mjpeg")
 
