@@ -1,6 +1,7 @@
 """A webserver to control the robot."""
 # pylint: disable=import-outside-toplevel
 # pylint: disable=unused-import
+# pylint: disable=import-error
 import io
 import logging
 import socketserver
@@ -8,8 +9,7 @@ from enum import Enum
 from http import server
 from pathlib import Path
 from threading import Condition, Event, Thread
-from typing import Final, Union
-from unittest.mock import MagicMock
+from typing import Final, Optional
 from urllib.parse import parse_qs
 
 from pydantic import BaseSettings
@@ -29,27 +29,6 @@ class Settings(BaseSettings):
 
     camera_library: CameraLibrary
     control_turret: bool
-
-
-SETTINGS: Final[Settings] = Settings()
-
-if SETTINGS.camera_library is CameraLibrary.OPENCV:
-    import cv2  # type: ignore
-
-    # import sentrybot.video_opencv
-    # generate_camera_video = sentrybot.video_opencv.generate_camera_video
-    # generate_file_video = sentrybot.video_opencv.generate_file_video
-else:
-    import picamera  # type: ignore # pylint: disable=import-error
-
-    # import sentrybot.video_picamera
-    # generate_camera_video = sentrybot.video_picamera.generate_camera_video
-    # generate_video = sentrybot.video_picamera.generate_file_video
-
-
-TURRET_CONTROLLER: Final[Union[TurretController, MagicMock]] = (
-    TurretController() if SETTINGS.control_turret else MagicMock()
-)
 
 
 with (Path(__file__).parent.resolve() / "templates/simpleserver.html").open(
@@ -85,6 +64,13 @@ OUTPUT: Final[StreamingOutput] = StreamingOutput()
 class StreamingHandler(server.SimpleHTTPRequestHandler):
     """Handle HTTP requests."""
 
+    turret: Optional[TurretController] = None
+
+    @classmethod
+    def set_turret(cls, turret: TurretController) -> None:
+        """Set a turret controller."""
+        cls.turret = turret
+
     def do_GET(self) -> None:
         if self.path == "/":
             self.send_response(301)
@@ -117,6 +103,10 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
                     self.end_headers()
                     self.wfile.write(frame)
                     self.wfile.write(b"\r\n")
+            except BrokenPipeError:
+                # Presume the browser page was closed
+                logging.warning("Connection lost.")
+                return
             except Exception as e:
                 logging.warning(
                     "Removed streaming client %s: %s", self.client_address, str(e)
@@ -126,12 +116,13 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
             parsed = parse_qs(self.path[len("/ajax-data?") :])
             logging.warning("received ajax data: %s", parsed)
 
-            if "shouldFire" in parsed and parsed["shouldFire"][0]:
-                TURRET_CONTROLLER.launch()
+            if self.turret:
+                if "shouldFire" in parsed and parsed["shouldFire"][0]:
+                    self.turret.launch()
 
-            elif "xPos" in parsed and "yPos" in parsed:
-                TURRET_CONTROLLER.set_x(float(parsed["xPos"][0]))
-                TURRET_CONTROLLER.set_y(float(parsed["yPos"][0]))
+                elif "xPos" in parsed and "yPos" in parsed:
+                    self.turret.set_x(float(parsed["xPos"][0]))
+                    self.turret.set_y(float(parsed["yPos"][0]))
 
             # Still getting ERR_EMPTY_RESPONSE
             self.send_response(200)
@@ -150,14 +141,21 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 
 def main() -> None:
     """Fire up a web server."""
-    if SETTINGS.camera_library is CameraLibrary.PICAMERA:
-        run_picamera()
+    settings = Settings()
+
+    turret = TurretController() if settings.control_turret else None
+
+    if settings.camera_library is CameraLibrary.OPENCV:
+        run_opencv(turret)
+
     else:
-        run_opencv()
+        run_picamera(turret)
 
 
-def run_picamera() -> None:
+def run_picamera(turret: Optional[TurretController]) -> None:
     """Start a webserver to stream PiCamera video."""
+    import picamera  # type: ignore
+
     with picamera.PiCamera(resolution="640x480", framerate=24) as camera:
 
         camera.rotation = 270
@@ -172,11 +170,12 @@ def run_picamera() -> None:
         finally:
             logging.warning("exiting")
             camera.stop_recording()
-            TURRET_CONTROLLER.reset()
+            if turret:
+                turret.reset()
 
 
 def record_to(output: StreamingOutput, should_exit: Event) -> None:
-    """Send"""
+    """Send OpenCV video to output."""
     import sentrybot.video_opencv
 
     stream = sentrybot.video_opencv.generate_camera_video()
@@ -189,18 +188,17 @@ def record_to(output: StreamingOutput, should_exit: Event) -> None:
             break
 
 
-def run_opencv() -> None:
+def run_opencv(turret: Optional[TurretController]) -> None:
     """Start a webserver to stream OpenCV video."""
     # Start recording in the background
-    import threading
 
-    should_exit = threading.Event()
+    should_exit = Event()
 
-    thread = threading.Thread(target=record_to, args=(OUTPUT, should_exit))
+    thread = Thread(target=record_to, args=(OUTPUT, should_exit))
     thread.start()
 
     try:
-        port: Final[int] = 8000
+        port = 8000
         address = ("", 8000)
         my_server = StreamingServer(address, StreamingHandler)
         logging.warning("serving on %s", port)
@@ -210,7 +208,8 @@ def run_opencv() -> None:
     finally:
         logging.warning("exiting")
         should_exit.set()
-        TURRET_CONTROLLER.reset()
+        if turret:
+            turret.reset()
         thread.join(1.0)
 
 

@@ -5,7 +5,6 @@ config.toml
 instance/
 node_modules/
 *.backup
-frontend/src
 
 
 # Byte-compiled / optimized / DLL files
