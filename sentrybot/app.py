@@ -74,6 +74,7 @@ def create_app(test_config: Optional[Mapping] = None) -> Flask:
             abort(503)
 
         video_path = app.config["VIDEO_PATH"]
+        print("???", video_path)
 
         # "frame" is the string that demarcates each frame
         return Response(
@@ -124,3 +125,7 @@ def create_app(test_config: Optional[Mapping] = None) -> Flask:
         return send_from_directory("static/StreamingAssets", path)
 
     return app
+
+
+if __name__ == "__main__":
+    create_app().run()

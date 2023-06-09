@@ -2,17 +2,43 @@
 import io
 import logging
 import socketserver
+from enum import Enum
+from unittest.mock import MagicMock
+
+from pydantic import BaseSettings
 from http import server
 from pathlib import Path
 from threading import Condition
-from typing import Final
+from typing import Final, Union
 from urllib.parse import parse_qs
 
-import picamera  # type: ignore # pylint: disable=import-error
+
+class CameraLibrary(str, Enum):
+    PICAMERA = "picamera"
+    OPENCV = "opencv"
+
+class Settings(BaseSettings):
+    camera_library: CameraLibrary
+    control_turret: bool
+
+
+SETTINGS: Final[Settings] = Settings()
+
+if SETTINGS.camera_library is CameraLibrary.OPENCV:
+    import cv2
+    # import sentrybot.video_opencv
+    # generate_camera_video = sentrybot.video_opencv.generate_camera_video
+    # generate_file_video = sentrybot.video_opencv.generate_file_video
+else:
+    import picamera  # type: ignore # pylint: disable=import-error
+    # import sentrybot.video_picamera
+
+    # generate_camera_video = sentrybot.video_picamera.generate_camera_video
+    # generate_video = sentrybot.video_picamera.generate_file_video
 
 from sentrybot.turret_controller import TurretController
 
-TURRET_CONTROLLER: Final[TurretController] = TurretController()
+TURRET_CONTROLLER: Final[Union[TurretController, MagicMock]] = TurretController() if SETTINGS.control_turret else MagicMock()
 
 
 with Path("templates/simpleserver.html").open("r", encoding="utf-8") as the_file:
@@ -38,6 +64,9 @@ class StreamingOutput:
                 self.condition.notify_all()
             self.buffer.seek(0)
         return self.buffer.write(buf)
+
+
+OUTPUT: Final[StreamingOutput] = StreamingOutput()
 
 
 class StreamingHandler(server.SimpleHTTPRequestHandler):
@@ -66,9 +95,9 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
             self.end_headers()
             try:
                 while True:
-                    with output.condition:
-                        output.condition.wait()
-                        frame = output.frame
+                    with OUTPUT.condition:
+                        OUTPUT.condition.wait()
+                        frame = OUTPUT.frame
                     self.wfile.write(b"--FRAME\r\n")
                     self.send_header("Content-Type", "image/jpeg")
                     self.send_header("Content-Length", str(len(frame)))
@@ -106,11 +135,53 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     daemon_threads = True
 
 
-with picamera.PiCamera(resolution="640x480", framerate=24) as camera:
+def main():
+    if SETTINGS.camera_library is CameraLibrary.PICAMERA:
+        run_picamera()
+    else:
+        run_opencv()
 
-    output = StreamingOutput()
-    camera.rotation = 270
-    camera.start_recording(output, format="mjpeg")
+
+def run_picamera():
+    with picamera.PiCamera(resolution="640x480", framerate=24) as camera:
+
+        camera.rotation = 270
+        camera.start_recording(OUTPUT, format="mjpeg")
+        try:
+            address = ("", 8000)
+            my_server = StreamingServer(address, StreamingHandler)
+            logging.warning("serving")
+            my_server.serve_forever()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            logging.warning("exiting")
+            camera.stop_recording()
+            TURRET_CONTROLLER.reset()
+
+# class OpenCVCamera():
+#     def __enter__(self):
+#         return self
+#     def
+def record_to(output):
+    import sentrybot.video_opencv
+    stream = sentrybot.video_opencv.generate_camera_video(None)
+    while True:
+        try:
+            frame = next(stream)
+            OUTPUT.write(frame)
+        except StopIteration:
+            print("Stopping...")
+            break
+
+
+def run_opencv():
+
+    # Start recording in the background
+    import threading
+    thread = threading.Thread(target=record_to, args=(OUTPUT, ))
+    thread.start()
+
     try:
         address = ("", 8000)
         my_server = StreamingServer(address, StreamingHandler)
@@ -120,5 +191,8 @@ with picamera.PiCamera(resolution="640x480", framerate=24) as camera:
         pass
     finally:
         logging.warning("exiting")
-        camera.stop_recording()
         TURRET_CONTROLLER.reset()
+
+
+if __name__ == "__main__":
+    main()
