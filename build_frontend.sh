@@ -19,7 +19,7 @@ if [ "$1" = "--watch" ]; then
 else
 
   # Compile TypeScript files into JavaScript
-  tsc --strict --project tsconfig.build.json --outDir ../sentrybot/static/js
+  npx tsc --strict --project tsconfig.build.json --outDir ../sentrybot/static/js
 
   ./append_js.sh
 
