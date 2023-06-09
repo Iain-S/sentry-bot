@@ -2,7 +2,7 @@
 import logging
 from pathlib import Path
 from time import sleep
-from typing import Generator
+from typing import Generator, Optional
 
 import cv2  # type: ignore
 
@@ -38,7 +38,7 @@ def generate_file_video(video_path: str) -> Generator[bytes, None, None]:
 
 
 def generate_camera_video(
-    turret_instruction: ClientInstruction,
+    turret_instruction: Optional[ClientInstruction] = None,
 ) -> Generator[bytes, None, None]:
     """Generate a video stream from a camera, with face detection rectangles."""
     # pylint: disable=no-member,invalid-name,too-many-locals
