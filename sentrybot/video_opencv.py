@@ -91,8 +91,4 @@ def generate_camera_video(
 
         # Ensure the frame was successfully encoded
         if flag:
-            # yield (
-            #     b"--frame\r\n"
-            #     b"Content-Type: image/jpeg\r\n\r\n" + bytearray(encoded_image) + b"\r\n"
-            # )
             yield bytearray(encoded_image)
