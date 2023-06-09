@@ -1,11 +1,11 @@
 """Unit tests for the server module."""
-import sentrybot.http_server as server
+from sentrybot import settings
 
 
 def test_settings() -> None:
     """Test the server settings."""
-    server.Settings(
-        camera_library=server.CameraLibrary.OPENCV,
+    settings.Settings(
+        camera_library=settings.CameraLibrary.OPENCV,
         control_turret=False,
         _env_file=None,
     )

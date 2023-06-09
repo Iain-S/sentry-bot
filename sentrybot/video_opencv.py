@@ -1,12 +1,14 @@
 """Generators for video streams that use OpenCV."""
 import logging
 from pathlib import Path
+from threading import Event, Thread
 from time import sleep
 from typing import Generator, Optional
 
 import cv2  # type: ignore
 
 from sentrybot.client_instruction import ClientInstruction
+from sentrybot.http_server import StreamingOutput
 
 
 def generate_file_video(video_path: str) -> Generator[bytes, None, None]:
@@ -92,3 +94,42 @@ def generate_camera_video(
         # Ensure the frame was successfully encoded
         if flag:
             yield bytearray(encoded_image)
+
+
+def record_to(output: StreamingOutput, should_exit: Event) -> None:
+    """Send OpenCV video to output."""
+
+    stream = generate_camera_video()
+    while not should_exit.is_set():
+        try:
+            frame = next(stream)
+            output.write(frame)
+        except StopIteration:
+            print("Stopping...")
+            break
+
+
+class OpenCVCamera:
+    """A class to push camera frames in a background thread."""
+
+    # pylint: disable=redefined-builtin
+
+    def __init__(self) -> None:
+        self.should_exit = Event()
+        self.thread: Optional[Thread] = None
+
+    def start_recording(self, output: StreamingOutput, format: str = "") -> None:
+        """Match PiCamera's method signature."""
+        del format
+
+        # Start recording in the background
+        self.should_exit = Event()
+        self.thread = Thread(target=record_to, args=(output, self.should_exit))
+        self.thread.start()
+
+    def stop_recording(self) -> None:
+        """Stop writing frames and exit the background thread."""
+        self.should_exit.set()
+        if not self.thread:
+            raise RuntimeError("stop_recording() called before start_recording()")
+        self.thread.join(1.0)

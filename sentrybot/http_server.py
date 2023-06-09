@@ -5,31 +5,14 @@
 import io
 import logging
 import socketserver
-from enum import Enum
 from http import server
 from pathlib import Path
-from threading import Condition, Event, Thread
+from threading import Condition
 from typing import Final, Optional
 from urllib.parse import parse_qs
 
-from pydantic import BaseSettings
-
+from sentrybot.settings import CameraLibrary, Settings
 from sentrybot.turret_controller import TurretController
-
-
-class CameraLibrary(str, Enum):
-    """Supported camera libraries."""
-
-    PICAMERA = "picamera"
-    OPENCV = "opencv"
-
-
-class Settings(BaseSettings):
-    """Environment variable settings."""
-
-    camera_library: CameraLibrary
-    control_turret: bool
-
 
 with (Path(__file__).parent.resolve() / "templates/simpleserver.html").open(
     "r", encoding="utf-8"
@@ -146,71 +129,35 @@ def main() -> None:
     turret = TurretController() if settings.control_turret else None
 
     if settings.camera_library is CameraLibrary.OPENCV:
-        run_opencv(turret)
-
-    else:
-        run_picamera(turret)
+        run(settings, turret)
 
 
-def run_picamera(turret: Optional[TurretController]) -> None:
+def run(settings: Settings, turret: Optional[TurretController]) -> None:
     """Start a webserver to stream PiCamera video."""
-    import picamera  # type: ignore
+    if settings.camera_library is CameraLibrary.PICAMERA:
+        import picamera  # type: ignore
 
-    with picamera.PiCamera(resolution="640x480", framerate=24) as camera:
-
+        camera = picamera.PiCamera(resolution="640x480", framerate=24)
         camera.rotation = 270
-        camera.start_recording(OUTPUT, format="mjpeg")
-        try:
-            address = ("", 8000)
-            my_server = StreamingServer(address, StreamingHandler)
-            logging.warning("serving")
-            my_server.serve_forever()
-        except KeyboardInterrupt:
-            pass
-        finally:
-            logging.warning("exiting")
-            camera.stop_recording()
-            if turret:
-                turret.reset()
+    else:
+        from sentrybot.video_opencv import OpenCVCamera
 
+        camera = OpenCVCamera()
 
-def record_to(output: StreamingOutput, should_exit: Event) -> None:
-    """Send OpenCV video to output."""
-    import sentrybot.video_opencv
-
-    stream = sentrybot.video_opencv.generate_camera_video()
-    while not should_exit.is_set():
-        try:
-            frame = next(stream)
-            output.write(frame)
-        except StopIteration:
-            print("Stopping...")
-            break
-
-
-def run_opencv(turret: Optional[TurretController]) -> None:
-    """Start a webserver to stream OpenCV video."""
-    # Start recording in the background
-
-    should_exit = Event()
-
-    thread = Thread(target=record_to, args=(OUTPUT, should_exit))
-    thread.start()
+    camera.start_recording(OUTPUT, format="mjpeg")
 
     try:
-        port = 8000
         address = ("", 8000)
         my_server = StreamingServer(address, StreamingHandler)
-        logging.warning("serving on %s", port)
+        logging.warning("serving")
         my_server.serve_forever()
     except KeyboardInterrupt:
         pass
     finally:
         logging.warning("exiting")
-        should_exit.set()
+        camera.stop_recording()
         if turret:
             turret.reset()
-        thread.join(1.0)
 
 
 if __name__ == "__main__":
