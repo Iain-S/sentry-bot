@@ -8,18 +8,20 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon-16x16.png">
     <link rel="stylesheet" href="static/css/sentrybot.css">
     <script type="module" src="static/js/face_detection.js"></script>
+    <script type="text/javascript" src="static/js/handle_coords.js"></script>
 </head>
 <body>
 <p>Video streaming with picamera.</p>
-<img src="stream.mjpg" width="640" height="480" alt="webcam feed"/>
+<!-- <img src="stream.mjpg" width="640" height="480" alt="webcam feed"/> -->
 <div class='etch-a-sketch' style="width:640px;height:360px;border:2px solid #000;"></div>
 <p>Hold ctrl and move your mouse in the box to aim the turret.</p>
 <p>Click anywhere to launch a projectile.</p>
 <form>
     <label for="xpos">X Position:</label>
-    <input type="text" id="xpos" readonly><br>
+    <input type="text" id="xpos"><br>
     <label for="ypos">Y Position:</label>
-    <input type="text" id="ypos" readonly><br>
+    <input type="text" id="ypos"><br>
+    <input type="button" value="Submit" onclick="testFunc()">
 </form>
 
 </body>
