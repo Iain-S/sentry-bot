@@ -20,7 +20,39 @@ You must install at least one for camera-related features to work.
 
 To install on a Raspberry Pi, log in and then:
 
-1. Install the project with
+1. From a freshly flashed Raspbian you will need to install some prerequisites.
+
+   ```bash
+   # Install server prerequisites
+   sudo apt update
+   sudo apt install python3-pip git pigpiod python3-flask
+   # Install OpenCV prerequisites
+   sudo apt-get install build-essential cmake pkg-config libjpeg-dev \
+      libtiff5-dev libpng-dev libavcodec-dev libavformat-dev libswscale-dev \
+      libv4l-dev libxvidcore-dev libx264-dev libfontconfig1-dev libcairo2-dev \
+      libgdk-pixbuf2.0-dev libpango1.0-dev libgtk2.0-dev libgtk-3-dev \
+      libatlas-base-dev gfortran libhdf5-dev libhdf5-dev libhdf5-103 \
+      python3-pyqt5 python3-dev -y
+   ```
+2. OpenCV can be installed in a virtual environment for use with the server.
+
+   ```bash
+   sudo apt install python3-venv
+   python3 -m venv venv
+   . ./venv/bin/activate
+   pip install --upgrade pip
+   pip install -e .
+   pip install opencv-python==4.6.0.66
+   export camera_library=opencv
+   export control_turret=0
+   ```
+3. Activate the Legacy Camera capability.
+
+   ```bash
+   sudo raspi-config nonint do_legacy 1
+   sudo reboot
+   ```
+4. Install the project with
 
    ```shell
    pip install "git+https://github.com/Iain-S/sentry-bot#egg=sentrybot[picamera]"`
@@ -28,8 +60,8 @@ To install on a Raspberry Pi, log in and then:
 
    **Note** that we are installing the `[picamera]` extra and that the `"` quotes are required if using `zsh`.
 
-1. _optional_ Manually compile and install OpenCV by following, for example, [these](https://pimylifeup.com/raspberry-pi-opencv/) instructions
-1. Proceed to [Run the Server](#run-the-server)
+5. _optional_ Manually compile and install OpenCV by following, for example, [these](https://pimylifeup.com/raspberry-pi-opencv/) instructions
+6. Proceed to [Run the Server](#run-the-server)
 
 ## User Setup
 
