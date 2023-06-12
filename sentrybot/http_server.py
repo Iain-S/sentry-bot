@@ -65,10 +65,10 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
         elif self.path.startswith("/set_desired_coords"):
             parsed = parse_qs(self.path[len("/set_desired_coords") :])
             logging.warning("received ajax data: %s", parsed)
-
             if self.turret:
-                if "shouldFire" in parsed and parsed["shouldFire"][0]:
+                if "shouldFire" in parsed and parsed["shouldFire"][0] == "true":
                     self.turret.launch()
+                    logging.warning("FIRED")
 
                 elif "xPos" in parsed and "yPos" in parsed:
                     self.turret.set_x(float(parsed["xPos"][0]))
