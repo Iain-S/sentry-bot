@@ -65,9 +65,6 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
     def set_turret(cls, turret: TurretController) -> None:
         """Set a turret controller."""
         cls.turret = turret
-    
-    def do_POST(self) -> None:
-        print(self.path)
 
     def do_GET(self) -> None:
         if self.path == "/":
