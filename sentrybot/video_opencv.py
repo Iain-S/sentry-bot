@@ -1,5 +1,7 @@
 """Generators for video streams that use OpenCV."""
 import logging
+
+# import time
 from pathlib import Path
 from threading import Event, Thread
 from time import sleep
@@ -99,7 +101,7 @@ def generate_camera_video(
 
         frame = cv2.resize(frame, (640, 360), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
 
-        do_aiming(frame, turret_controller)
+        # do_aiming(frame, turret_controller)
 
         # Draw a dot where the mouse is
         if turret_instruction:
@@ -115,7 +117,11 @@ def generate_camera_video(
             # )
 
         # Encode the frame in JPEG format
-        (flag, encoded_image) = cv2.imencode(".jpg", frame)
+        # start = time.perf_counter()
+        (flag, encoded_image) = cv2.imencode(
+            ".jpg", frame, (cv2.IMWRITE_JPEG_QUALITY, 100)
+        )
+        # logging.warning(time.perf_counter()-start)
 
         # Ensure the frame was successfully encoded
         if flag:
