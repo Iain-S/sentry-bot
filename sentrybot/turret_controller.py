@@ -49,6 +49,31 @@ class TurretController:
         if self._y_servo.value != round(value, 14):
             self._y_servo.value = value
 
+    def nudge_x(self, amount: float) -> None:
+        """Adjust the horizontal rotation by amount."""
+
+        value = self._x_servo.value
+        value += amount
+
+        value = value if value > -0.9 else -0.9
+        value = value if value < 0.9 else 0.9
+
+        # Try to be more efficient by only setting when we need to
+        if self._x_servo.value != round(value, 14):
+            self._x_servo.value = value
+
+    def nudge_y(self, amount: float) -> None:
+        """Adjust the vertical rotation by amount."""
+        value = self._y_servo.value
+        value += amount
+
+        value = value if value > -0.9 else -0.9
+        value = value if value < 0.9 else 0.9
+
+        # Try to be more efficient by only setting when we need to
+        if self._y_servo.value != round(value, 14):
+            self._y_servo.value = value
+
     def launch(self) -> None:
         """Blocks until the turret has fired."""
 

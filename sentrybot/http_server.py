@@ -17,7 +17,17 @@ from sentrybot.turret_controller import TurretController
 with (Path(__file__).parent.resolve() / "templates/simpleserver.html").open(
     "r", encoding="utf-8"
 ) as the_file:
-    PAGE: Final[str] = the_file.read()
+    PI_RECOGNITION_PAGE: Final[str] = the_file.read()
+
+with (Path(__file__).parent.resolve() / "templates/offload.html").open(
+    "r", encoding="utf-8"
+) as the_file:
+    LAPTOP_RECOGNITION_PAGE: Final[str] = the_file.read()
+
+with (Path(__file__).parent.resolve() / "templates/index.html").open(
+    "r", encoding="utf-8"
+) as the_file:
+    LANDING_PAGE: Final[str] = the_file.read()
 
 
 class StreamingOutput:
@@ -46,6 +56,8 @@ OUTPUT: Final[StreamingOutput] = StreamingOutput()
 
 class StreamingHandler(server.SimpleHTTPRequestHandler):
     """Handle HTTP requests."""
+
+    # pylint: disable=too-many-branches,too-many-statements
 
     turret: Optional[TurretController] = None
 
@@ -77,7 +89,21 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
             # Still getting ERR_EMPTY_RESPONSE
             self.send_response(200)
         elif self.path == "/index.html":
-            content = PAGE.encode("utf-8")
+            content = LANDING_PAGE.encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.send_header("Content-Length", str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+        elif self.path == "/pi_processing.html":
+            content = PI_RECOGNITION_PAGE.encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.send_header("Content-Length", str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+        elif self.path == "/laptop_processing.html":
+            content = LAPTOP_RECOGNITION_PAGE.encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "text/html")
             self.send_header("Content-Length", str(len(content)))
@@ -125,6 +151,19 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
                     self.turret.set_y(float(parsed["yPos"][0]))
 
             # Still getting ERR_EMPTY_RESPONSE
+            self.send_response(200)
+        elif self.path == "/latest-image.jpg":
+            with OUTPUT.condition:
+                OUTPUT.condition.wait()
+                frame = OUTPUT.frame
+            self.send_response(200)
+            self.send_header("Age", "0")
+            self.send_header("Cache-Control", "no-cache, private")
+            self.send_header("Pragma", "no-cache")
+            self.send_header("Content-Type", "image/jpeg")
+            self.send_header("Content-Length", str(len(frame)))
+            self.end_headers()
+            self.wfile.write(frame)
             self.send_response(200)
         else:
             # self.send_error(404)

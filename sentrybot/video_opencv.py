@@ -1,5 +1,8 @@
 """Generators for video streams that use OpenCV."""
 import logging
+import time
+
+# import time
 from pathlib import Path
 from threading import Event, Thread
 from time import sleep
@@ -11,6 +14,8 @@ import numpy
 from sentrybot.client_instruction import ClientInstruction
 from sentrybot.http_server import StreamingOutput
 from sentrybot.turret_controller import TurretController
+
+# pylint: disable=fixme,unused-argument
 
 
 def generate_file_video(video_path: str) -> Generator[bytes, None, None]:
@@ -39,6 +44,13 @@ def generate_file_video(video_path: str) -> Generator[bytes, None, None]:
                     + bytearray(encoded_image)
                     + b"\r\n"
                 )
+
+
+def do_mask_based_aiming(
+    frame: numpy.ndarray, turret_controller: Optional[TurretController]
+) -> None:
+    """Aim with a HSV mask."""
+    # e.g. turret_controller.nudge_x()
 
 
 def do_aiming(
@@ -97,7 +109,8 @@ def generate_camera_video(
 
         frame = cv2.resize(frame, (640, 360), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
 
-        do_aiming(frame, turret_controller)
+        # do_aiming(frame, turret_controller)
+        # do_mask_based_aiming(frame, turret_controller)
 
         # Draw a dot where the mouse is
         if turret_instruction:
@@ -113,11 +126,16 @@ def generate_camera_video(
             # )
 
         # Encode the frame in JPEG format
-        (flag, encoded_image) = cv2.imencode(".jpg", frame)
+        # start = time.perf_counter()
+        (flag, encoded_image) = cv2.imencode(
+            ".jpg", frame, (cv2.IMWRITE_JPEG_QUALITY, 100)
+        )
+        # logging.warning(time.perf_counter()-start)
 
         # Ensure the frame was successfully encoded
         if flag:
             yield bytearray(encoded_image)
+            time.sleep(0.03)
 
 
 class OpenCVCamera:
