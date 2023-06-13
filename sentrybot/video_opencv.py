@@ -134,7 +134,7 @@ def do_mask_based_aiming(
     upper_bound: numpy.ndarray = numpy.array(
         [
             maximum_hue,
-            minimum_parameter_value,
+            maximum_parameter_value,
             maximum_parameter_value,
         ]  # Take a look at this. The original code had a bug here.
     )
