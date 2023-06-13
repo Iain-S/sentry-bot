@@ -91,6 +91,7 @@ def _draw_contour(frame: numpy.ndarray, contour: Any) -> None:
         contour_width,
         contour_height,
     ) = _contour_to_rectangle(contour)
+
     cv2.rectangle(
         frame,
         pt1=(contour_x, contour_y),
@@ -101,12 +102,38 @@ def _draw_contour(frame: numpy.ndarray, contour: Any) -> None:
     cv2.drawContours(frame, [contour], 0, (0, 255, 0), 3)
 
 
-def _aim(
-    current_center_x: float, image_center_x: float, image_width: float, threshold: int
+def _draw_vertical_line(
+    streaming_frame: numpy.ndarray, x_position: float, height: float
 ) -> None:
-    if current_center_x > (image_center_x + image_width / threshold):
+    # print(f"{x_position=}")
+    cv2.line(
+        streaming_frame,
+        (int(x_position), 0),
+        (int(x_position), height),
+        (255, 0, 0),
+        thickness=2,
+    )
+
+
+def _aim(
+    current_center_x: float,
+    image_center_x: float,
+    image_width: float,
+    image_height: float,
+    threshold: int,
+    streaming_frame: numpy.ndarray,
+) -> None:
+    # print(f"{image_width=}")
+
+    right_threshold: float = image_center_x + image_width / threshold
+    left_threshold: float = image_center_x - image_width / threshold
+
+    _draw_vertical_line(streaming_frame, right_threshold, image_height)
+    _draw_vertical_line(streaming_frame, left_threshold, image_height)
+
+    if current_center_x > right_threshold:
         logging.warning("Object right")
-    elif current_center_x < (image_center_x - image_width / threshold):
+    elif current_center_x < left_threshold:
         logging.warning("Object left")
     else:
         logging.warning("Object at the center")
@@ -124,7 +151,7 @@ def do_mask_based_aiming(
     aim_threshold: int = 3,
 ) -> numpy.ndarray:
     """Aim with a HSV mask."""
-    _, image_width, _ = frame.shape
+    image_height, image_width, _ = frame.shape
     image_center_x: float = image_width / 2
     # image_center_y: float = image_height / 2
 
@@ -165,7 +192,14 @@ def do_mask_based_aiming(
         current_center_x: float = position_x + width / 2
         # current_center_y: float = position_y + height / 2
 
-        _aim(current_center_x, image_center_x, image_width, aim_threshold)
+        _aim(
+            current_center_x,
+            image_center_x,
+            image_width,
+            image_height,
+            aim_threshold,
+            streaming_frame,
+        )
 
     # e.g. turret_controller.nudge_x()
 
