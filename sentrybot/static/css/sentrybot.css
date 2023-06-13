@@ -11,3 +11,16 @@
 #sentrybot-link {
   font-family: Arial, Helvetica, sens-serif;
 }
+
+.videocontainer {
+  position: relative;
+}
+
+.top {
+  position: absolute;
+  top: 50%;
+  left: 25%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  opacity: 0.7;
+ }
