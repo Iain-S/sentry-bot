@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -10,24 +11,25 @@
     <script type="module" src="static/js/face_detection.js"></script>
     <script type="text/javascript" src="static/js/handle_coords.js"></script>
 </head>
-<body>
-<p>Video streaming with picamera.</p>
-<div class="videocontainer" width="640" height="480">
-    <img src="stream.mjpg" width="640" height="480" alt="webcam feed"/>
-    <img class="top" src="static/images/heart_crosshair.png" width="640" height="480">
-</div>
 
-<div class='etch-a-sketch' style="width:640px;height:360px;border:2px solid #000;"></div>
-<p>Hold ctrl and move your mouse in the box to aim the turret.</p>
-<p>Click anywhere to launch a projectile.</p>
-<form>
-    <label for="xpos">X Position:</label>
-    <input type="text" id="xpos"><br>
-    <label for="ypos">Y Position:</label>
-    <input type="text" id="ypos"><br>
-    <input type="button" value="Move" onclick="testFunc()">
-    <input type="button" value="FIRE!!!!!" onclick="fire()">
-</form>
+<body>
+    <p>Video streaming with picamera.</p>
+    <div class="videocontainer" width="640" height="480">
+        <img src="stream.mjpg" width="640" height="480" alt="webcam feed" class="circle-image" />
+        <img class="top" src="static/images/heart_crosshair.png" width="480" height="480">
+    </div>
+
+    <p>Hold ctrl and move your mouse in the box to aim the turret.</p>
+    <p>Click anywhere to launch a projectile.</p>
+    <form>
+        <label for="xpos">X Position:</label>
+        <input type="text" id="xpos"><br>
+        <label for="ypos">Y Position:</label>
+        <input type="text" id="ypos"><br>
+        <input type="button" value="Move" onclick="testFunc()">
+        <input type="button" value="FIRE!!!!!" onclick="fire()">
+    </form>
 
 </body>
+
 </html>
