@@ -220,7 +220,15 @@ def generate_camera_video(
 
         # do_aiming(frame, turret_controller)
         if Settings().do_aiming:
-            frame = do_mask_based_aiming(frame, turret_controller)
+            minimum_hue: int = Settings().minimum_hue_target
+            maximum_hue: int = Settings().maximum_hue_target
+
+            frame = do_mask_based_aiming(
+                frame,
+                turret_controller,
+                minimum_hue=minimum_hue,
+                maximum_hue=maximum_hue,
+            )
 
         # Draw a dot where the mouse is
         if turret_instruction:
