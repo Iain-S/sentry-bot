@@ -7,5 +7,6 @@ def test_settings() -> None:
     settings.Settings(
         camera_library=settings.CameraLibrary.OPENCV,
         control_turret=False,
+        do_aiming=False,
         _env_file=None,
     )
