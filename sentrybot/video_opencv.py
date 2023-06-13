@@ -1,5 +1,6 @@
 """Generators for video streams that use OpenCV."""
 import logging
+import time
 
 # import time
 from pathlib import Path
@@ -126,6 +127,7 @@ def generate_camera_video(
         # Ensure the frame was successfully encoded
         if flag:
             yield bytearray(encoded_image)
+            time.sleep(0.03)
 
 
 class OpenCVCamera:
