@@ -166,6 +166,10 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
 
             # Still getting ERR_EMPTY_RESPONSE
             self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            self.wfile.write(b"")
 
         elif self.path.startswith("/set_desired_coords"):
             parsed = parse_qs(self.path[len("/set_desired_coords?") :])
