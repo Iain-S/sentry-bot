@@ -161,7 +161,7 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
                     self.turret.set_y(float(parsed["yPos"][0]))
 
                 elif "xNudge" in parsed and "yNudge" in parsed:
-                    self.turret.nudge_x(float(parsed["xNudge"][0]))
+                    self.turret.nudge_x(-1 * float(parsed["xNudge"][0]))
                     self.turret.nudge_y(float(parsed["yNudge"][0]))
 
             # Still getting ERR_EMPTY_RESPONSE
