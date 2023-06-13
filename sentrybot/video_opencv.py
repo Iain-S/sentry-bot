@@ -142,6 +142,10 @@ def do_mask_based_aiming(
     colour_mask: numpy.ndarray = cv2.inRange(hsv_frame, lower_bound, upper_bound)
     contours, _ = cv2.findContours(colour_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
+    logging.warning("Detected contours: %s", str(len(contours)))
+    # Remove later: Only for testing
+    frame = colour_mask
+
     contour_target = _detect_target(contours, minimum_target_area, maximum_target_area)
 
     if contour_target is None:
