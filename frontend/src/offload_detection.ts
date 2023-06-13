@@ -89,10 +89,11 @@ export function handleMouseMove(
   }
 }
 
-window.onload = () => {
+function streamImages() {
   const cameraImage = document.getElementById(
     "latest-image-id"
   ) as HTMLImageElement | null;
+
   const req = new XMLHttpRequest();
 
   req.addEventListener("load", (event: ProgressEvent) => {
@@ -118,5 +119,9 @@ window.onload = () => {
   req.setRequestHeader("Content-type", "application/json; charset=utf-8");
 
   req.send();
-  console.log("Sending Mouse click");
+  setTimeout(streamImages, 1.0);
+}
+
+window.onload = () => {
+  streamImages();
 };

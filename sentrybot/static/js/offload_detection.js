@@ -68,7 +68,7 @@ export function handleMouseMove(event, xPos, yPos) {
         console.log("Could not determine event target.");
     }
 }
-window.onload = () => {
+function streamImages() {
     const cameraImage = document.getElementById("latest-image-id");
     const req = new XMLHttpRequest();
     req.addEventListener("load", (event) => {
@@ -90,5 +90,8 @@ window.onload = () => {
     req.open("GET", "/latest-image.jpg");
     req.setRequestHeader("Content-type", "application/json; charset=utf-8");
     req.send();
-    console.log("Sending Mouse click");
+    setTimeout(streamImages, 1.0);
+}
+window.onload = () => {
+    streamImages();
 };

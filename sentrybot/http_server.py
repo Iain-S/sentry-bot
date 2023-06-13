@@ -28,10 +28,6 @@ with (Path(__file__).parent.resolve() / "templates/index.html").open(
     "r", encoding="utf-8"
 ) as the_file:
     LANDING_PAGE: Final[str] = the_file.read()
-# with (Path(__file__).parent.resolve() / "templates/latest.html").open(
-#         "r", encoding="utf-8"
-# ) as the_file:
-#     PAGE: Final[str] = the_file.read()
 
 
 class StreamingOutput:
