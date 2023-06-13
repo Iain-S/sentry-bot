@@ -232,8 +232,10 @@ def generate_camera_video(
             minimum_hue: int = Settings().minimum_hue_target
             maximum_hue: int = Settings().maximum_hue_target
 
+            # Last working values: 0/60
+
             # minimum_hue: int = 0
-            # maximum_hue: int = 125
+            # maximum_hue: int = 60
 
             frame = do_mask_based_aiming(
                 frame,
