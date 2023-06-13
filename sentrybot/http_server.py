@@ -2,6 +2,7 @@
 # pylint: disable=import-outside-toplevel
 # pylint: disable=unused-import
 # pylint: disable=import-error
+# pylint: disable=fixme
 import io
 import logging
 import socketserver
@@ -28,6 +29,11 @@ with (Path(__file__).parent.resolve() / "templates/index.html").open(
     "r", encoding="utf-8"
 ) as the_file:
     LANDING_PAGE: Final[str] = the_file.read()
+
+with (Path(__file__).parent.resolve() / "templates/mask.html").open(
+    "r", encoding="utf-8"
+) as the_file:
+    MASK_RECOGNITION_PAGE: Final[str] = the_file.read()
 
 
 class StreamingOutput:
@@ -71,20 +77,7 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
             self.send_response(301)
             self.send_header("Location", "/index.html")
             self.end_headers()
-        elif self.path.startswith("/set_desired_coords"):
-            parsed = parse_qs(self.path[len("/set_desired_coords?") :])
-            logging.warning("received ajax data: %s", parsed)
-            if self.turret:
-                if "shouldFire" in parsed and parsed["shouldFire"][0] == "true":
-                    self.turret.launch()
-                    logging.warning("FIRED")
 
-                elif "xPos" in parsed and "yPos" in parsed:
-                    self.turret.set_x(float(parsed["xPos"][0]))
-                    self.turret.set_y(float(parsed["yPos"][0]))
-
-            # Still getting ERR_EMPTY_RESPONSE
-            self.send_response(200)
         elif self.path == "/index.html":
             content = LANDING_PAGE.encode("utf-8")
             self.send_response(200)
@@ -101,6 +94,13 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
             self.wfile.write(content)
         elif self.path == "/laptop_processing.html":
             content = LAPTOP_RECOGNITION_PAGE.encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.send_header("Content-Length", str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+        elif self.path == "/mask_processing.html":
+            content = MASK_RECOGNITION_PAGE.encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "text/html")
             self.send_header("Content-Length", str(len(content)))
@@ -153,10 +153,27 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
 
             # Still getting ERR_EMPTY_RESPONSE
             self.send_response(200)
+
+        elif self.path.startswith("/set_desired_coords"):
+            parsed = parse_qs(self.path[len("/set_desired_coords?") :])
+            logging.warning("received ajax data: %s", parsed)
+            if self.turret:
+                if "shouldFire" in parsed and parsed["shouldFire"][0] == "true":
+                    self.turret.launch()
+                    logging.warning("FIRED")
+
+                elif "xPos" in parsed and "yPos" in parsed:
+                    self.turret.set_x(float(parsed["xPos"][0]))
+                    self.turret.set_y(float(parsed["yPos"][0]))
+
+            # Still getting ERR_EMPTY_RESPONSE
+            self.send_response(200)
+
         elif self.path == "/latest-image.jpg":
             with OUTPUT.condition:
                 OUTPUT.condition.wait()
                 frame = OUTPUT.frame
+            # ToDo Remove one of these two send_response()s
             self.send_response(200)
             self.send_header("Age", "0")
             self.send_header("Cache-Control", "no-cache, private")
