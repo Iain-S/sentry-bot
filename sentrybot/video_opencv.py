@@ -120,7 +120,7 @@ def do_mask_based_aiming(
     minimum_target_area: int = 0,
     maximum_target_area: int = 100000,
     aim_threshold: int = 3,
-) -> None:
+) -> numpy.ndarray:
     """Aim with a HSV mask."""
     _, image_width, _ = frame.shape
     image_center_x: float = image_width / 2
@@ -129,7 +129,7 @@ def do_mask_based_aiming(
     hsv_frame: numpy.ndarray = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     lower_bound: numpy.ndarray = numpy.array(
-        [minimum_hue, minimum_parameter_value, maximum_parameter_value]
+        [minimum_hue, minimum_parameter_value, minimum_parameter_value]
     )
     upper_bound: numpy.ndarray = numpy.array(
         [
@@ -143,8 +143,6 @@ def do_mask_based_aiming(
     contours, _ = cv2.findContours(colour_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     logging.warning("Detected contours: %s", str(len(contours)))
-    # Remove later: Only for testing
-    frame = colour_mask
 
     contour_target = _detect_target(contours, minimum_target_area, maximum_target_area)
 
@@ -161,6 +159,8 @@ def do_mask_based_aiming(
         _aim(current_center_x, image_center_x, image_width, aim_threshold)
 
     # e.g. turret_controller.nudge_x()
+    # Remove later: Only for testing
+    return colour_mask
 
 
 def do_aiming(
@@ -220,7 +220,7 @@ def generate_camera_video(
 
         # do_aiming(frame, turret_controller)
         if Settings().do_aiming:
-            do_mask_based_aiming(frame, turret_controller)
+            frame = do_mask_based_aiming(frame, turret_controller)
 
         # Draw a dot where the mouse is
         if turret_instruction:
