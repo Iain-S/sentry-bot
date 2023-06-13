@@ -16,3 +16,4 @@ class Settings(BaseSettings):
 
     camera_library: CameraLibrary
     control_turret: bool
+    do_aiming: bool
