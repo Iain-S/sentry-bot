@@ -17,6 +17,6 @@ class Settings(BaseSettings):
     camera_library: CameraLibrary
     control_turret: bool
     do_aiming: bool
-    minimum_hue_target: int
-    maximum_hue_target: int
-    streaming_source: int
+    minimum_hue_target: int = 30
+    maximum_hue_target: int = 50
+    streaming_source: int = 2
