@@ -15,6 +15,8 @@ from sentrybot.client_instruction import ClientInstruction
 from sentrybot.http_server import StreamingOutput
 from sentrybot.turret_controller import TurretController
 
+# pylint: disable=fixme,unused-argument
+
 
 def generate_file_video(video_path: str) -> Generator[bytes, None, None]:
     """Generate a video stream from a file."""
