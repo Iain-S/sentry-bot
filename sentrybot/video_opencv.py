@@ -73,8 +73,10 @@ def _detect_target(
     current_contour = None
 
     for contour in contours:
-        _, _, width, height = _contour_to_rectangle(contour)
-        area = width * height
+        # _, _, width, height = _contour_to_rectangle(contour)
+        # area = width * height
+
+        area = cv2.contourArea(contour)
 
         if area > current_max_area:
             current_max_area = area
@@ -92,6 +94,7 @@ def _draw_contour(frame: numpy.ndarray, contour: Any) -> None:
         contour_width,
         contour_height,
     ) = _contour_to_rectangle(contour)
+
     cv2.rectangle(
         frame,
         pt1=(contour_x, contour_y),
@@ -102,13 +105,46 @@ def _draw_contour(frame: numpy.ndarray, contour: Any) -> None:
     cv2.drawContours(frame, [contour], 0, (0, 255, 0), 3)
 
 
-def _aim(
-    current_center_x: float, image_center_x: float, image_width: float, threshold: int
+def _draw_vertical_line(
+    streaming_frame: numpy.ndarray, x_position: float, height: float
 ) -> None:
-    if current_center_x > (image_center_x + image_width / threshold):
+    # print(f"{x_position=}")
+    cv2.line(
+        streaming_frame,
+        (int(x_position), 0),
+        (int(x_position), height),
+        (255, 0, 0),
+        thickness=2,
+    )
+
+
+def _aim(
+    current_center_x: float,
+    image_center_x: float,
+    image_width: float,
+    image_height: float,
+    threshold: int,
+    streaming_frame: numpy.ndarray,
+    turret_controller: Optional[TurretController],
+) -> None:
+    # print(f"{image_width=}")
+
+    right_threshold: float = image_center_x + image_width / threshold
+    left_threshold: float = image_center_x - image_width / threshold
+
+    _draw_vertical_line(streaming_frame, right_threshold, image_height)
+    _draw_vertical_line(streaming_frame, left_threshold, image_height)
+
+    default_left_nudge: float = 0.1
+
+    if current_center_x > right_threshold and turret_controller:
         logging.warning("Object right")
-    elif current_center_x < (image_center_x - image_width / threshold):
+        turret_controller.nudge_x(-default_left_nudge)
+
+    elif current_center_x < left_threshold and turret_controller:
         logging.warning("Object left")
+        turret_controller.nudge_x(default_left_nudge)
+
     else:
         logging.warning("Object at the center")
 
@@ -118,48 +154,67 @@ def do_mask_based_aiming(
     turret_controller: Optional[TurretController],
     minimum_hue: int = 30,
     maximum_hue: int = 50,
-    minimum_parameter_value: int = 0,
+    minimum_parameter_value: int = 100,
     maximum_parameter_value: int = 255,
     minimum_target_area: int = 0,
     maximum_target_area: int = 100000,
     aim_threshold: int = 3,
-) -> None:
+) -> numpy.ndarray:
     """Aim with a HSV mask."""
-    _, image_width, _ = frame.shape
+    image_height, image_width, _ = frame.shape
     image_center_x: float = image_width / 2
     # image_center_y: float = image_height / 2
 
     hsv_frame: numpy.ndarray = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     lower_bound: numpy.ndarray = numpy.array(
-        [minimum_hue, minimum_parameter_value, maximum_parameter_value]
+        [minimum_hue, minimum_parameter_value, minimum_parameter_value]
     )
     upper_bound: numpy.ndarray = numpy.array(
         [
             maximum_hue,
-            minimum_parameter_value,
+            maximum_parameter_value,
             maximum_parameter_value,
         ]  # Take a look at this. The original code had a bug here.
     )
 
     colour_mask: numpy.ndarray = cv2.inRange(hsv_frame, lower_bound, upper_bound)
+
+    streaming_frame = frame
+    if Settings().streaming_source == 1:
+        streaming_frame = hsv_frame
+    elif Settings().streaming_source == 2:
+        streaming_frame = colour_mask
+
     contours, _ = cv2.findContours(colour_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+
+    logging.warning("Detected contours: %s", str(len(contours)))
 
     contour_target = _detect_target(contours, minimum_target_area, maximum_target_area)
 
     if contour_target is None:
         logging.warning("No target detected")
     else:
-        _draw_contour(frame, contour_target)
+        _draw_contour(streaming_frame, contour_target)
 
         position_x, _, width, _ = _contour_to_rectangle(contour_target)
         # current_max_area: float = width * height
         current_center_x: float = position_x + width / 2
         # current_center_y: float = position_y + height / 2
 
-        _aim(current_center_x, image_center_x, image_width, aim_threshold)
+        _aim(
+            current_center_x,
+            image_center_x,
+            image_width,
+            image_height,
+            aim_threshold,
+            streaming_frame,
+            turret_controller,
+        )
 
     # e.g. turret_controller.nudge_x()
+
+    return streaming_frame
 
 
 def do_aiming(
@@ -219,7 +274,20 @@ def generate_camera_video(
 
         # do_aiming(frame, turret_controller)
         if Settings().do_aiming:
-            do_mask_based_aiming(frame, turret_controller)
+            minimum_hue: int = Settings().minimum_hue_target
+            maximum_hue: int = Settings().maximum_hue_target
+
+            # Last working values: 0/60
+
+            # minimum_hue: int = 0
+            # maximum_hue: int = 60
+
+            frame = do_mask_based_aiming(
+                frame,
+                turret_controller,
+                minimum_hue=minimum_hue,
+                maximum_hue=maximum_hue,
+            )
 
         # Draw a dot where the mouse is
         if turret_instruction:
