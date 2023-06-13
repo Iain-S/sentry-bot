@@ -70,8 +70,10 @@ def _detect_target(
     current_contour = None
 
     for contour in contours:
-        _, _, width, height = _contour_to_rectangle(contour)
-        area = width * height
+        # _, _, width, height = _contour_to_rectangle(contour)
+        # area = width * height
+
+        area = cv2.contourArea(contour)
 
         if area > current_max_area:
             current_max_area = area
@@ -115,7 +117,7 @@ def do_mask_based_aiming(
     turret_controller: Optional[TurretController],
     minimum_hue: int = 30,
     maximum_hue: int = 50,
-    minimum_parameter_value: int = 0,
+    minimum_parameter_value: int = 100,
     maximum_parameter_value: int = 255,
     minimum_target_area: int = 0,
     maximum_target_area: int = 100000,
@@ -140,6 +142,13 @@ def do_mask_based_aiming(
     )
 
     colour_mask: numpy.ndarray = cv2.inRange(hsv_frame, lower_bound, upper_bound)
+
+    streaming_frame = frame
+    if Settings().streaming_source == 1:
+        streaming_frame = hsv_frame
+    elif Settings().streaming_source == 2:
+        streaming_frame = colour_mask
+
     contours, _ = cv2.findContours(colour_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     logging.warning("Detected contours: %s", str(len(contours)))
@@ -149,7 +158,7 @@ def do_mask_based_aiming(
     if contour_target is None:
         logging.warning("No target detected")
     else:
-        _draw_contour(frame, contour_target)
+        _draw_contour(streaming_frame, contour_target)
 
         position_x, _, width, _ = _contour_to_rectangle(contour_target)
         # current_max_area: float = width * height
@@ -159,8 +168,8 @@ def do_mask_based_aiming(
         _aim(current_center_x, image_center_x, image_width, aim_threshold)
 
     # e.g. turret_controller.nudge_x()
-    # Remove later: Only for testing
-    return colour_mask
+
+    return streaming_frame
 
 
 def do_aiming(
@@ -222,6 +231,9 @@ def generate_camera_video(
         if Settings().do_aiming:
             minimum_hue: int = Settings().minimum_hue_target
             maximum_hue: int = Settings().maximum_hue_target
+
+            # minimum_hue: int = 0
+            # maximum_hue: int = 125
 
             frame = do_mask_based_aiming(
                 frame,

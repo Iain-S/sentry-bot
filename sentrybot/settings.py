@@ -19,3 +19,4 @@ class Settings(BaseSettings):
     do_aiming: bool
     minimum_hue_target: int
     maximum_hue_target: int
+    streaming_source: int
