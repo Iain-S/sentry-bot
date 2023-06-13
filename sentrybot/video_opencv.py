@@ -38,6 +38,9 @@ def generate_file_video(video_path: str) -> Generator[bytes, None, None]:
             # Adjust for best performance
             frame = cv2.resize(frame, (0, 0), fx=0.2, fy=0.2)
 
+            # The robot's camera is mounted sideways
+            frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+
             # Encode the frame in JPEG format
             (flag, encoded_image) = cv2.imencode(".jpg", frame)
 
