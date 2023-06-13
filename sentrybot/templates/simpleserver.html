@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon-16x16.png">
     <link rel="stylesheet" href="static/css/sentrybot.css">
     <script type="module" src="static/js/face_detection.js"></script>
+    <script type="text/javascript" src="static/js/handle_coords.js"></script>
 </head>
 <body>
 <p>Video streaming with picamera.</p>
@@ -17,9 +18,13 @@
 <p>Click anywhere to launch a projectile.</p>
 <form>
     <label for="xpos">X Position:</label>
-    <input type="text" id="xpos" readonly><br>
+    <input type="text" id="xpos"><br>
     <label for="ypos">Y Position:</label>
-    <input type="text" id="ypos" readonly><br>
+    <input type="text" id="ypos"><br>
+    <input type="button" value="Move" onclick="testFunc()">
+</form>
+<form>
+    <input type="button" value="FIRE!!!!!" onclick="fire()">
 </form>
 
 </body>

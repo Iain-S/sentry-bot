@@ -71,6 +71,20 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
             self.send_response(301)
             self.send_header("Location", "/index.html")
             self.end_headers()
+        elif self.path.startswith("/set_desired_coords"):
+            parsed = parse_qs(self.path[len("/set_desired_coords") :])
+            logging.warning("received ajax data: %s", parsed)
+            if self.turret:
+                if "shouldFire" in parsed and parsed["shouldFire"][0] == "true":
+                    self.turret.launch()
+                    logging.warning("FIRED")
+
+                elif "xPos" in parsed and "yPos" in parsed:
+                    self.turret.set_x(float(parsed["xPos"][0]))
+                    self.turret.set_y(float(parsed["yPos"][0]))
+
+            # Still getting ERR_EMPTY_RESPONSE
+            self.send_response(200)
         elif self.path == "/index.html":
             content = LANDING_PAGE.encode("utf-8")
             self.send_response(200)
