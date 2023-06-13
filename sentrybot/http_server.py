@@ -9,7 +9,7 @@ import socketserver
 from http import server
 from pathlib import Path
 from threading import Condition
-from typing import Any, Final, Optional, Union
+from typing import Final, Optional
 from urllib.parse import parse_qs
 
 from sentrybot.settings import CameraLibrary, Settings
@@ -66,24 +66,13 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
     # pylint: disable=too-many-branches,too-many-statements
 
     turret: Optional[TurretController] = None
-    camera: Optional[Any] = None
 
     @classmethod
     def set_turret(cls, turret: TurretController) -> None:
         """Set a turret controller."""
         cls.turret = turret
 
-    @classmethod
-    def set_camera(
-        cls,
-        camera: Any,
-    ) -> None:
-        """Set a turret controller."""
-        cls.camera = camera
-
     def do_GET(self) -> None:
-        assert self.camera, "self.camera should not be None"
-
         if self.path == "/":
             self.send_response(301)
             self.send_header("Location", "/index.html")
@@ -118,7 +107,6 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(content)
         elif self.path == "/stream.mjpg":
-            self.camera.start_recording(OUTPUT, format="mjpeg")
             self.send_response(200)
             self.send_header("Age", "0")
             self.send_header("Cache-Control", "no-cache, private")
@@ -141,7 +129,6 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
             except BrokenPipeError:
                 # Presume the browser page was closed
                 logging.warning("Connection lost.")
-                self.camera.stop_recording()
                 return
             except Exception as e:
                 logging.warning(
@@ -187,11 +174,9 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
             self.wfile.write(b"")
 
         elif self.path == "/latest-image.jpg":
-            self.camera.start_recording(OUTPUT, format="mjpeg")
             with OUTPUT.condition:
-                for _ in range(2):
-                    OUTPUT.condition.wait()
-                    frame = OUTPUT.frame
+                OUTPUT.condition.wait()
+                frame = OUTPUT.frame
             # ToDo Remove one of these two send_response()s
             self.send_response(200)
             self.send_header("Age", "0")
@@ -233,7 +218,7 @@ def main() -> None:
 
         camera = OpenCVCamera(turret)
 
-    StreamingHandler.set_camera(camera)
+    camera.start_recording(OUTPUT, format="mjpeg")
 
     try:
         address = ("", 8000)
