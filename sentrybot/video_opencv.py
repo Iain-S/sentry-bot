@@ -46,6 +46,13 @@ def generate_file_video(video_path: str) -> Generator[bytes, None, None]:
                 )
 
 
+def do_mask_based_aiming(
+    frame: numpy.ndarray, turret_controller: Optional[TurretController]
+) -> None:
+    """Aim with a HSV mask."""
+    # e.g. turret_controller.nudge_x()
+
+
 def do_aiming(
     frame: numpy.ndarray, turret_controller: Optional[TurretController]
 ) -> None:
@@ -103,6 +110,7 @@ def generate_camera_video(
         frame = cv2.resize(frame, (640, 360), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
 
         # do_aiming(frame, turret_controller)
+        # do_mask_based_aiming(frame, turret_controller)
 
         # Draw a dot where the mouse is
         if turret_instruction:
