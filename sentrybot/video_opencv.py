@@ -122,6 +122,7 @@ def _aim(
     image_height: float,
     threshold: int,
     streaming_frame: numpy.ndarray,
+    turret_controller: Optional[TurretController],
 ) -> None:
     # print(f"{image_width=}")
 
@@ -131,10 +132,16 @@ def _aim(
     _draw_vertical_line(streaming_frame, right_threshold, image_height)
     _draw_vertical_line(streaming_frame, left_threshold, image_height)
 
-    if current_center_x > right_threshold:
+    default_left_nudge: float = 0.1
+
+    if current_center_x > right_threshold and turret_controller:
         logging.warning("Object right")
-    elif current_center_x < left_threshold:
+        turret_controller.nudge_x(-default_left_nudge)
+
+    elif current_center_x < left_threshold and turret_controller:
         logging.warning("Object left")
+        turret_controller.nudge_x(default_left_nudge)
+
     else:
         logging.warning("Object at the center")
 
@@ -199,6 +206,7 @@ def do_mask_based_aiming(
             image_height,
             aim_threshold,
             streaming_frame,
+            turret_controller,
         )
 
     # e.g. turret_controller.nudge_x()
