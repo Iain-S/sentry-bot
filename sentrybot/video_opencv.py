@@ -1,4 +1,5 @@
 """Generators for video streams that use OpenCV."""
+from ast import List
 import logging
 import time
 
@@ -6,7 +7,7 @@ import time
 from pathlib import Path
 from threading import Event, Thread
 from time import sleep
-from typing import Generator, Optional
+from typing import Any, Generator, Optional, Tuple
 
 import cv2  # type: ignore
 import numpy
@@ -46,10 +47,114 @@ def generate_file_video(video_path: str) -> Generator[bytes, None, None]:
                 )
 
 
+def _contour_to_rectangle(contour) -> Tuple[int, int, int, int]:
+    polygonal_curve = cv2.approxPolyDP(contour, 3, True)
+    bounding_rectangle = cv2.boundingRect(polygonal_curve)
+
+    return (
+        bounding_rectangle[0],
+        bounding_rectangle[1],
+        bounding_rectangle[2],
+        bounding_rectangle[3],
+    )
+
+
+def _detect_target(
+    contours: list[Any], minimum_target_area: float, maximum_target_area: float
+) -> Optional[Any]:
+    current_max_area: float = 0
+    current_contour = None
+
+    for contour in contours:
+        _, _, width, height = _contour_to_rectangle(contour)
+        area = width * height
+
+        if area > current_max_area:
+            current_max_area = area
+            current_contour = contour
+    if (
+        current_max_area > minimum_target_area
+        and current_max_area < maximum_target_area
+    ):
+        return current_contour
+
+    return None
+
+
+def _draw_contour(frame: numpy.ndarray, contour) -> None:
+    (
+        contour_x,
+        contour_y,
+        contour_width,
+        contour_height,
+    ) = _contour_to_rectangle(contour)
+    cv2.rectangle(
+        frame,
+        pt1=(contour_x, contour_y),
+        pt2=(contour_x + contour_width, contour_y + contour_height),
+        color=(255, 0, 0),
+        thickness=3,
+    )
+    cv2.drawContours(frame, [contour], 0, (0, 255, 0), 3)
+
+
+def _aim(
+    current_center_x: float, image_center_x: float, image_width: float, threshold: int
+):
+    if current_center_x > (image_center_x + image_width / threshold):
+        logging.warning("Object right")
+    elif current_center_x < (image_center_x - image_width / threshold):
+        logging.warning("Object left")
+    else:
+        logging.warning("Object at the center")
+
+
 def do_mask_based_aiming(
-    frame: numpy.ndarray, turret_controller: Optional[TurretController]
+    frame: numpy.ndarray,
+    turret_controller: Optional[TurretController],
+    minimum_hue: int = 30,
+    maximum_hue: int = 50,
+    minimum_parameter_value: int = 0,
+    maximum_parameter_value: int = 255,
+    minimum_target_area: int = 0,
+    maximum_target_area: int = 100000,
+    aim_threshold: int = 3,
 ) -> None:
     """Aim with a HSV mask."""
+    image_height, image_width, _ = frame.shape
+    image_center_x: float = image_width / 2
+    image_center_y: float = image_height / 2
+
+    hsv_frame: numpy.ndarray = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    lower_bound: numpy.ndarray = numpy.array(
+        [minimum_hue, minimum_parameter_value, maximum_parameter_value]
+    )
+    upper_bound: numpy.ndarray = numpy.array(
+        [
+            maximum_hue,
+            minimum_parameter_value,
+            maximum_parameter_value,
+        ]  # Take a look at this. The original code had a bug here.
+    )
+
+    colour_mask: numpy.ndarray = cv2.inRange(hsv_frame, lower_bound, upper_bound)
+    contours, _ = cv2.findContours(colour_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+
+    contour_target = _detect_target(contours, minimum_target_area, maximum_target_area)
+
+    if contour_target is None:
+        logging.warning("No target detected")
+    else:
+        _draw_contour(frame, contour_target)
+
+        position_x, position_y, width, height = _contour_to_rectangle(contour_target)
+        current_max_area: float = width * height
+        current_center_x: float = position_x + width / 2
+        current_center_y: float = position_y + height / 2
+
+        _aim(current_center_x, image_center_x, image_width, aim_threshold)
+
     # e.g. turret_controller.nudge_x()
 
 
@@ -77,12 +182,11 @@ def do_aiming(
     )
 
     # Draw a rectangle around the faces
-    for (x, y, w, h) in faces:
+    for x, y, w, h in faces:
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
     # faces is an empty tuple if there are none
     if isinstance(faces, numpy.ndarray) and faces.any():
-
         x, y, w, h = faces[0]
 
         if 240 < x + (w * 0.5) < 400 and 130 < y + (h * 0.5) < 230:
