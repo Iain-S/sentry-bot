@@ -11,8 +11,16 @@ window.onload = () => {
         console.log("Could not find etch-a-sketch element");
         return;
     }
+    let enableHandler = false;
+    window.setInterval(() => {
+        enableHandler = true;
+    }, 100);
     box.onmousemove = (event) => {
-        return handleMouseMove(event, xPos, yPos);
+        if (enableHandler) {
+            handleMouseMove(event, xPos, yPos);
+            // Don't handle any more mouse movements until re-enabled
+            enableHandler = false;
+        }
     };
     box.onclick = () => {
         return handleMouseClick();

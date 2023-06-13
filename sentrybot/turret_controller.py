@@ -15,9 +15,11 @@ class TurretController:
     def __init__(self) -> None:
         self._x_servo = Servo(12, pin_factory=PiGPIOFactory())
         self._y_servo = Servo(13, pin_factory=PiGPIOFactory())
-        self._breach_servo = Servo(17, pin_factory=PiGPIOFactory())
+
         self._right_dc_motor = OutputDevice(26, pin_factory=PiGPIOFactory())
         self._left_dc_motor = OutputDevice(5, pin_factory=PiGPIOFactory())
+
+        self._breach_servo = Servo(17, pin_factory=PiGPIOFactory())
 
     def set_x(self, value: float) -> None:
         """Set the horizontal rotation.
@@ -25,14 +27,10 @@ class TurretController:
         Args:
             value: -1 for down, +1 for up and all the values in-between.
         """
-        if not -1 <= value <= 1:
-            # raise RangeOfMovementError
-            print("xerror: ", value)
-            return
 
         # Just while we're testing
-        value = max(min(0.9, value), -0.9)
-        # While we're testing
+        value = value if value > -0.9 else -0.9
+        value = value if value < 0.9 else 0.9
 
         # Try to be more efficient by only setting when we need to
         if self._x_servo.value != round(value, 14):
@@ -44,13 +42,33 @@ class TurretController:
         Args:
             value: -1 for left, +1 for right and all the values in-between.
         """
-        if not -1 <= value <= 1:
-            # raise RangeOfMovementError
-            print("yerror: ", value)
+        value = value if value > -0.9 else -0.9
+        value = value if value < 0.9 else 0.9
 
-        # Just while we're testing
-        value = max(min(0.9, value), -0.9)
-        # While we're testing
+        # Try to be more efficient by only setting when we need to
+        if self._y_servo.value != round(value, 14):
+            self._y_servo.value = value
+
+    def nudge_x(self, amount: float) -> None:
+        """Adjust the horizontal rotation by amount."""
+
+        value = self._x_servo.value
+        value += amount
+
+        value = value if value > -0.9 else -0.9
+        value = value if value < 0.9 else 0.9
+
+        # Try to be more efficient by only setting when we need to
+        if self._x_servo.value != round(value, 14):
+            self._x_servo.value = value
+
+    def nudge_y(self, amount: float) -> None:
+        """Adjust the vertical rotation by amount."""
+        value = self._y_servo.value
+        value += amount
+
+        value = value if value > -0.9 else -0.9
+        value = value if value < 0.9 else 0.9
 
         # Try to be more efficient by only setting when we need to
         if self._y_servo.value != round(value, 14):
@@ -81,7 +99,9 @@ class TurretController:
         self._left_dc_motor.off()
 
     def reset(self) -> None:
-        """Reset servos to their starting positions."""
+        """Blocks until servos have been reset to their starting positions."""
         self.set_x(0)
         self.set_y(0)
-        self._breach_servo = 0
+        self._breach_servo.value = 0
+        sleep(0.5)
+        self._breach_servo.detach()

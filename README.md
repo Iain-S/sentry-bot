@@ -61,7 +61,7 @@ You should not try to install the `[picamera]` extra on non-Pi hardware as insta
 
 - [assets/](./assets) contains images, etc. for the README
 - [frontend/](./frontend) contains the frontend code and tests, which are written in TypeScript
-- [sentrybot/](./sentrybot) contains the backend code, which is a Python Flask webserver
+- [sentrybot/](./sentrybot) contains the backend code, which is a Python webserver
 - [stubs/](./stubs) contains type stubs for Mypy
 - [tests/](./tests) contains the backend tests
 
@@ -100,18 +100,17 @@ The formatters and linters specified in [.pre-commit-config.yaml](.pre-commit-co
 
 ## Run the Server
 
-1. Make a `config.toml` file in the directory you will run the app from
-1. _optional_ Add an environment variable to `config.toml` with the path to a `.mp4` video
+### On a Raspberry Pi
 
-   ```toml
-   VIDEO_PATH='/path/to/any/video.mp4'
-   ```
+1. Start the pigpio daemon with `sudo pigpiod`
+1. Set the `CONTROL_TURRET` environment variable to `1`
+1. Set the `CAMERA_LIBRARY` environment variable to either `"picamera"` or `"opencv"`
+1. Run the webserver with `python -m sentrybot.http_server` but be aware that **it will make the webserver accessible to all machines on the network**
+1. Go to `ip.of.the.pi:8000/` in your web browser, replacing `ip.of.the.pi` with your Pi's IP address
 
-1. _optional_ Build webGL project with Unity and copy the `Build/`, `StreamingAssets/` and `TemplateData/` directories to `sentrybot/static/`.
-   This game can be accessed via the `/game` URL.
-1. If you are running on a Pi:
-   1. Start the pigpio daemon with `sudo pigpiod`
-   1. Run the webserver with `flask --app sentrybot --debug run --host 0.0.0.0` but be aware that **it will make the webserver accessible to all machines on the network**
-1. Else, if you are running on other hardware:
-   1. Run the webserver with `flask --app sentrybot --debug run`
-   1. Go to `localhost:5000/` in your web browser
+### On Other Hardware
+
+1. Set the `CONTROL_TURRET` environment variable to `0`
+1. Set the `CAMERA_LIBRARY` environment variable to either `"picamera"` or `"opencv"`
+1. Run the webserver with `python -m sentrybot.http_server` but be aware that **it will make the webserver accessible to all machines on the network**
+1. Go to `localhost:8000/` in your web browser

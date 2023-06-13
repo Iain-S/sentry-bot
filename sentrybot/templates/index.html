@@ -1,14 +1,21 @@
-{% extends "base.html" %}
-
-{% block head %}
-{% endblock %}
-
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="stylesheet" href="static/css/sentrybot.css">
+</head>
+<body>
+<a href="/" id="sentrybot-link">sentrybot</a><hr>
 <div class="centered-text">
   <ul class="displayed-inline">
-    <li><a href="{{ url_for('video') }}">Watch a video</a></li>
-    <li><a href="{{ url_for('face_detection') }}">Watch your webcam</a></li>
-    <li><a href="{{ url_for('send_receive') }}">Get the time</a></li>
+    <li><a href="/laptop_processing.html">Laptop-based object recognition</a></li>
+    <li><a href="/pi_processing.html">Pi-based object recognition</a></li>
   </ul>
 </div>
-{% endblock %}
+</body>
+</html>
