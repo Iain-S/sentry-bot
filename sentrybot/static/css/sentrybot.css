@@ -31,6 +31,40 @@
   object-fit: cover;
 }
 
+@keyframes heartfade {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+.heart {
+  z-index: 999;
+  animation: heartfade 10s linear;
+  position: absolute;
+}
+
+.heart:before,
+.heart:after {
+  content: "";
+  background-color: #fc2a62;
+  position: absolute;
+  height: 30px;
+  width: 45px;
+  border-radius: 15px 0px 0px 15px;
+}
+
+.heart:before {
+  transform: rotate(45deg);
+}
+
+.heart:after {
+  left: 10.5px;
+  transform: rotate(135deg);
+}
 
 /* .top {
   position: relative;

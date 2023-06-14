@@ -13,9 +13,10 @@
 </head>
 
 <body>
+
     <p>Video streaming with picamera.</p>
     <div class="videocontainer" width="640" height="480">
-        <img src="stream.mjpg" width="640" height="480" alt="webcam feed" class="circle-image" />
+        <img src="stream.mjpg" width="640" height="480" alt="webcam feed" />
         <img class="top" src="static/images/heart_crosshair.png" width="480" height="480">
     </div>
 
@@ -31,5 +32,72 @@
     </form>
 
 </body>
+<script>
+    var brd = document.createElement("DIV");
+    document.body.insertBefore(brd, document.getElementById("board"));
+    const duration = 3000;
+    const speed = 0.75; // speed for movement in y-direction
+
+    var hearts = [];
+    function generateHeart(x, y, xBound, xStart, scale) {
+        var heart = document.createElement("DIV");
+        heart.setAttribute('class', 'heart');
+        brd.appendChild(heart);
+        heart.time = duration;
+        heart.x = x;
+        heart.y = y;
+        heart.bound = xBound;
+        heart.direction = xStart;
+        heart.style.left = heart.x + "px";
+        heart.style.top = heart.y + "px";
+        heart.scale = scale;
+        heart.style.transform = "scale(" + scale + "," + scale + ")";
+        if (hearts == null)
+            hearts = [];
+        hearts.push(heart);
+        return heart;
+    }
+
+    function callFunctionMultipleTimes(numCalls) {
+        for (var i = 0; i < numCalls; i++) {
+            // Replace 'yourFunctionName' with the actual name of your function
+            generateHeart(150, 300, 400, null, 2);
+        }
+    }
+    callFunctionMultipleTimes(1); // TODO: is this doing anything
+    var before = Date.now();
+    var id = setInterval(frame, 25);
+    function frame() {
+        var current = Date.now();
+        var deltaTime = current - before;
+        before = current;
+        for (i in hearts) {
+            var heart = hearts[i];
+            heart.time -= deltaTime;
+
+            if (heart.time > 0) {
+                heart.y -= speed;
+                heart.style.top = heart.y + "px";
+
+                // Adjust the range of random movement
+                var randomXRange = 100; // Adjust this value for X-axis random movement range
+                var randomYRange = 10; // Adjust this value for Y-axis random movement range
+
+                // Generate random movement within the specified range
+                var randomX = Math.floor(Math.random() * (2 * randomXRange)) - randomXRange;
+                var randomY = Math.floor(Math.random() * (2 * randomYRange)) - randomYRange;
+                var pixelMovement = 75; // Adjust this value for more pixel movement
+                var xMovementMultiplier = 0.5; // TODO: is this working???Adjust this value for desired speed
+                var xMovement = heart.direction * heart.bound * Math.sin(heart.y * heart.scale / 30) * xMovementMultiplier;
+                heart.style.left = heart.x + xMovement + randomX + "px";
+                heart.style.top = heart.y + randomY + "px";
+            }
+            else {
+                heart.parentNode.removeChild(heart);
+                hearts.splice(i, 1);
+            }
+        }
+    }
+</script>
 
 </html>
