@@ -89,6 +89,8 @@ export function handleMouseMove(
 }
 
 export function handleKeyEvent(event: KeyboardEvent) {
+  console.log("Key event", event);
+
   const req = new XMLHttpRequest();
   req.addEventListener("load", (event: ProgressEvent) => {
     console.log("Key press received by server");
