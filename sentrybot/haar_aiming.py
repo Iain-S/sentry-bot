@@ -1,5 +1,4 @@
 """Recognise and aim with haar cascades."""
-import logging
 import math
 from pathlib import Path
 from typing import Optional
@@ -8,6 +7,8 @@ import cv2  # type: ignore
 import numpy as np
 
 from sentrybot.turret_controller import TurretController
+
+# pylint: disable=fixme
 
 
 def estimate_distance(area: int) -> float:
@@ -37,11 +38,12 @@ def do_haar_aiming(
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
+    # ToDo How tune these params.
     balls = ball_cascade.detectMultiScale(
         gray,
         scaleFactor=1.1,
         minNeighbors=5,
-        minSize=(30, 30),
+        minSize=(10, 10),
         flags=cv2.CASCADE_SCALE_IMAGE,
     )
 
@@ -53,8 +55,9 @@ def do_haar_aiming(
     if isinstance(balls, np.ndarray) and balls.any():
         x, y, w, h = balls[0]
 
-        # logging.warning("h: %s, w: %s", h, w)
-        logging.warning("area: %s", h * w)
+        line_start = int(frame.shape[1] / 2), int(frame.shape[0] / 2)
+        line_end = int(x + (w / 2)), int(y + (h / 2))
+        cv2.line(frame, line_start, line_end, (255, 0, 0), 10)
 
         if 240 < x + (w * 0.5) < 400 and 130 < y + (h * 0.5) < 230:
             # Target in middle of frame (assuming a 640x360 resolution)
