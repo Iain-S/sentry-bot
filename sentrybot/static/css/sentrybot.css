@@ -1,13 +1,176 @@
+body {
+  overflow: hidden;
+  background: #E6E6FA;
+  background: linear-gradient(to right, #b24592, #f15f79)
+}
+
+header {
+  background-color: rgb(245, 2, 180);
+  padding: 2%;
+  text-align: center;
+}
+
+/* Style the title */
+header h1 {
+  color: #fff;
+  font-size: 24px;
+  margin: 0;
+}
+
 .centered-text {
   font-family: Arial, Helvetica, sens-serif;
   text-align: center;
 }
 
-.displayed-inline{
+.displayed-inline {
   display: inline-block;
   text-align: left;
 }
 
 #sentrybot-link {
   font-family: Arial, Helvetica, sens-serif;
+}
+
+.container {
+  display: flex;
+  padding: 2%;
+}
+
+.left-container {
+  flex-basis: 0%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.right-container {
+  flex-basis: 100%;
+  padding: 2%;
+  width: 50%;
+}
+
+.videocontainer {
+  display: grid;
+  height: 100%;
+  place-items: center;
+}
+
+.videocontainer img {
+  grid-column: 1;
+  grid-row: 1;
+  width: 70vmin;
+  height: 70vmin;
+  object-fit: cover;
+  text-align: center;
+}
+
+.circle-image {
+  border-radius: 90%;
+  object-fit: cover;
+}
+
+.menu-toggler {
+  grid-column: 1;
+  grid-row: 1;
+  width:30%;
+  height:40%;
+  z-index:2;
+  opacity:0;
+  cursor:pointer;
+}
+.menu-toggler:hover + label,
+.menu-toggler:hover + label:before,
+.menu-toggler:hover + label:after,{
+  background: transparent;
+}
+.menu-toggler:checked + label {
+  background: transparent;
+}
+.menu-toggler:checked + label:before,
+.menu-toggler:checked + label:after,{
+  top:0;
+  width:40px;
+  transform-origin: 50% 50%;
+}
+.menu-toggler:checked + label:before {
+  transform: rotate(45deg) translateY(-15px) translateX(-15px);
+}
+.menu-toggler:checked + label:after {
+  transform: rotate(-45deg);
+}
+.menu-toggler:checked ~ ul .menu-item {
+  opacity: 1;
+}
+.menu-toggler:checked ~ ul .menu-item:nth-child(1) {
+  transform: rotate(45deg) translate(-250px);
+}
+.menu-toggler:checked ~ ul .menu-item:nth-child(2) {
+  transform: rotate(315deg) translateX(-250px);
+}
+
+.menu-toggler:checked ~ ul .menu-item a {
+  pointer-events:auto;
+}
+.menu-toggler + label {
+  grid-column: 1;
+  grid-row: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 1;
+  border-radius: 2.5px;
+  background: transparent;
+  transition: transform 0.5s top 0.5s;
+  margin: auto;
+  opacity: 0.5;
+}
+.menu-toggler + label:before {
+  grid-column: 1;
+  grid-row: 1;
+  top: 10px;
+}
+.menu-toggler + label:after {
+  top: -10px;
+}
+.menu-item:nth-child(1) a {
+  transform: rotate(0deg);
+}
+.menu-item:nth-child(2) a {
+  transform: rotate(-60deg);
+}
+
+.menu-container {
+  display: contents;
+  /* Additional styles for the menu container */
+}
+
+.menu-item {
+  grid-column: 1;
+  grid-row: 1;
+  width: 80px;
+  height: 80px;
+  transition: 0.75s;
+  opacity: 0;
+  z-index:1;
+}
+.menu-item a {
+  display: block;
+  width: inherit;
+  height: inherit;
+  line-height: 80px;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(230, 230, 250, 0.7);
+  border-radius: 50%;
+  text-align: center;
+  text-decoration: none;
+  font-size: 40px;
+  pointer-events: none;
+  transition: 0.2s;
+  z-index: 1;
+}
+.menu-item a:hover {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+  color: white;
+  background: rgba(255, 255, 255, 0.3);
+  font-size: 44.44px
 }
