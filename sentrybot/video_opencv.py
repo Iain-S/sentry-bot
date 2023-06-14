@@ -257,6 +257,8 @@ def generate_camera_video(
     """Generate a video stream from a camera, with face detection rectangles."""
     # pylint: disable=no-member,invalid-name
 
+    settings = Settings()
+
     video_capture = cv2.VideoCapture(0)
 
     while True:
@@ -270,12 +272,13 @@ def generate_camera_video(
         frame = cv2.resize(frame, (640, 360), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
 
         # The robot's camera is mounted sideways
-        frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        if settings.rotate_feed:
+            frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
         # do_aiming(frame, turret_controller)
-        if Settings().do_aiming:
-            minimum_hue: int = Settings().minimum_hue_target
-            maximum_hue: int = Settings().maximum_hue_target
+        if settings.do_aiming:
+            minimum_hue: int = settings.minimum_hue_target
+            maximum_hue: int = settings.maximum_hue_target
 
             # Last working values: 0/60
 
