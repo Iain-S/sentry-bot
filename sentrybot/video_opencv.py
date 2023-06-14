@@ -4,6 +4,7 @@
 
 """Generators for video streams that use OpenCV."""
 import logging
+import math
 import time
 
 # import time
@@ -116,35 +117,95 @@ def _draw_vertical_line(
     )
 
 
+def _draw_point(
+    frame: numpy.ndarray,
+    x_coordinate: float,
+    y_coordinate: float,
+    radius: int = 8,
+    colour: Tuple = (255, 0, 0),
+    thickness: int = 2,
+) -> None:
+    cv2.circle(frame, (int(x_coordinate), int(y_coordinate)), radius, colour, thickness)
+
+
+def _add_text(frame: numpy.ndarray, text: str) -> None:
+    cv2.putText(
+        frame,
+        text,
+        (10, 600),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.7,
+        (0, 255, 0),
+        2,
+        cv2.LINE_AA,
+    )
+
+
 def _aim(
     current_center_x: float,
+    current_center_y: float,
     image_center_x: float,
+    image_center_y: float,
     image_width: float,
     image_height: float,
     threshold: int,
+    firing_threshold: int,
     streaming_frame: numpy.ndarray,
     turret_controller: Optional[TurretController],
 ) -> None:
-    # print(f"{image_width=}")
+    _draw_point(streaming_frame, image_center_x, image_center_y)
+    _draw_point(streaming_frame, current_center_x, current_center_y)
+    logging.warning(
+        "image_width %s image_height: %s", str(image_width), str(image_height)
+    )
+    logging.warning(
+        "image_center_x: %s image_center_y: %s",
+        str(image_center_x),
+        str(image_center_y),
+    )
+    logging.warning(
+        "current_center_x: %s current_center_y: %s",
+        str(current_center_x),
+        str(current_center_y),
+    )
 
-    right_threshold: float = image_center_x + image_width / threshold
-    left_threshold: float = image_center_x - image_width / threshold
+    current_distance: float = math.dist(
+        (image_center_x, image_center_y), (current_center_x, current_center_y)
+    )
+    x_distance: float = abs(image_center_x - current_center_x)
+    y_distance: float = abs(image_center_y - current_center_y)
 
-    _draw_vertical_line(streaming_frame, right_threshold, image_height)
-    _draw_vertical_line(streaming_frame, left_threshold, image_height)
+    logging.warning(
+        "current_distance: %s firing_threshold: %s x_distance: %s y_distance: %s",
+        str(current_distance),
+        str(firing_threshold),
+        str(x_distance),
+        str(y_distance),
+    )
 
-    default_left_nudge: float = 0.1
-
-    if current_center_x > right_threshold and turret_controller:
-        logging.warning("Object right")
-        turret_controller.nudge_x(-default_left_nudge)
-
-    elif current_center_x < left_threshold and turret_controller:
-        logging.warning("Object left")
-        turret_controller.nudge_x(default_left_nudge)
-
+    default_nudge: float = Settings().default_nudge
+    if current_distance <= firing_threshold:
+        _add_text(streaming_frame, "FIRE!!!!")
+        if turret_controller:
+            turret_controller.launch()
+    elif current_center_x < image_center_x and x_distance > firing_threshold:
+        _add_text(streaming_frame, f"Object left. Distance: {current_distance}")
+        if turret_controller:
+            turret_controller.nudge_x(default_nudge)
+    elif current_center_x > image_center_x and x_distance > firing_threshold:
+        _add_text(streaming_frame, f"Object right Distance: {current_distance}")
+        if turret_controller:
+            turret_controller.nudge_x(-default_nudge)
+    elif current_center_y < image_center_y and y_distance > firing_threshold:
+        _add_text(streaming_frame, f"Object up Distance: {current_distance}")
+        if turret_controller:
+            turret_controller.nudge_y(default_nudge)
+    elif current_center_y > image_center_y and y_distance > firing_threshold:
+        _add_text(streaming_frame, f"Object Down Distance: {current_distance}")
+        if turret_controller:
+            turret_controller.nudge_y(-default_nudge)
     else:
-        logging.warning("Object at the center")
+        _add_text(streaming_frame, f"NO ACTION TAKEN! Distance: {current_distance}")
 
 
 def do_mask_based_aiming(
@@ -161,7 +222,7 @@ def do_mask_based_aiming(
     """Aim with a HSV mask."""
     image_height, image_width, _ = frame.shape
     image_center_x: float = image_width / 2
-    # image_center_y: float = image_height / 2
+    image_center_y: float = image_height / 2
 
     hsv_frame: numpy.ndarray = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
@@ -195,17 +256,22 @@ def do_mask_based_aiming(
     else:
         _draw_contour(streaming_frame, contour_target)
 
-        position_x, _, width, _ = _contour_to_rectangle(contour_target)
+        position_x, position_y, width, height = _contour_to_rectangle(contour_target)
         # current_max_area: float = width * height
         current_center_x: float = position_x + width / 2
-        # current_center_y: float = position_y + height / 2
+        current_center_y: float = position_y + height / 2
+
+        firing_threshold: int = Settings().firing_threshold
 
         _aim(
             current_center_x,
+            current_center_y,
             image_center_x,
+            image_center_y,
             image_width,
             image_height,
             aim_threshold,
+            firing_threshold,
             streaming_frame,
             turret_controller,
         )
@@ -262,6 +328,8 @@ def generate_camera_video(
     """Generate a video stream from a camera, with face detection rectangles."""
     # pylint: disable=no-member,invalid-name
 
+    settings = Settings()
+
     video_capture = cv2.VideoCapture(0)
 
     # For aiming state between frames
@@ -273,14 +341,18 @@ def generate_camera_video(
 
         if not ret:
             logging.warning("Can't receive frame (stream end?).")
-            sleep(0.03)
+            sleep(Settings().frame_delay)
 
         frame = cv2.resize(frame, (640, 360), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
 
         # The robot's camera is mounted sideways
-        # frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        if settings.rotate_feed:
+            frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
-        if Settings().do_aiming:
+        # do_aiming(frame, turret_controller)
+        if settings.do_aiming:
+            minimum_hue: int = settings.minimum_hue_target
+            maximum_hue: int = settings.maximum_hue_target
 
             do_haar_aiming(frame, turret_controller, state)
         #     minimum_hue: int = Settings().minimum_hue_target
@@ -321,7 +393,7 @@ def generate_camera_video(
         # Ensure the frame was successfully encoded
         if flag:
             yield bytearray(encoded_image)
-            time.sleep(0.03)
+            time.sleep(settings.frame_delay)
 
 
 class OpenCVCamera:

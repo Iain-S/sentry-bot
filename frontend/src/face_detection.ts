@@ -4,6 +4,9 @@ window.onload = () => {
   const xPos = document.querySelector("#xpos") as HTMLInputElement | null;
   const yPos = document.querySelector("#ypos") as HTMLInputElement | null;
 
+  // Key presses
+  window.addEventListener("keydown", handleKeyEvent);
+
   if (yPos == null || xPos == null) {
     console.log("Could not find one or more of xPos and yPos");
     return;
@@ -30,7 +33,4 @@ window.onload = () => {
   box.onclick = () => {
     return handleMouseClick();
   };
-
-  // Key presses
-  window.addEventListener("keydown", handleKeyEvent);
 };
