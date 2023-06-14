@@ -13,23 +13,37 @@
 </head>
 
 <body>
-    <p>Video streaming with picamera.</p>
-    <div class="videocontainer" width="640" height="480">
-        <img src="stream.mjpg" width="640" height="480" alt="webcam feed" class="circle-image" />
-        <img class="top" src="static/images/heart_crosshair.png" width="480" height="480">
-    </div>
-
-    <p>Hold ctrl and move your mouse in the box to aim the turret.</p>
-    <p>Click anywhere to launch a projectile.</p>
-    <form>
-        <label for="xpos">X Position:</label>
-        <input type="text" id="xpos"><br>
-        <label for="ypos">Y Position:</label>
-        <input type="text" id="ypos"><br>
-        <input type="button" value="Move" onclick="testFunc()">
-        <input type="button" value="FIRE!!!!!" onclick="fire()">
-    </form>
-
+    <header>
+        <h1>&#x2665; Mechanical Cupid &#x2665;</h1>
+    </header>
+    <div class="container">
+        <div class="left-container">
+            <form>
+                <label for="xpos">X Position:</label>
+                <input type="text" id="xpos"><br>
+                <label for="ypos">Y Position:</label>
+                <input type="text" id="ypos"><br>
+                <input type="button" value="Move" onclick="testFunc()">
+                <input type="button" value="FIRE!!!!!" onclick="fire()">
+            </form>
+        </div>
+        <div class="right-container">
+            <div class="videocontainer">
+                <img src="stream.mjpg" alt="webcam feed" class="circle-image" />
+                <img class="top" src="static/images/crosshair_3.png">
+                <input checked="checked" class="menu-toggler" type="checkbox">
+                <label for="menu-toggler"></label>
+                <ul class="menu-container">
+                    <li class="menu-item">
+                    <a class="fas fa-cat" href=""></a>
+                    </li>
+                    <li class="menu-item">
+                    <a class="fas fa-cookie-bite" href="#"></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+      </div>
 </body>
 
 </html>
