@@ -20,3 +20,4 @@ class Settings(BaseSettings):
     minimum_hue_target: int = 30
     maximum_hue_target: int = 50
     streaming_source: int = 2
+    do_haar_aiming: bool = False

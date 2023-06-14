@@ -16,6 +16,7 @@ import cv2  # type: ignore
 import numpy
 
 from sentrybot.client_instruction import ClientInstruction
+from sentrybot.haar_aiming import do_haar_aiming
 from sentrybot.http_server import StreamingOutput
 from sentrybot.settings import Settings
 from sentrybot.turret_controller import TurretController
@@ -263,6 +264,9 @@ def generate_camera_video(
 
     video_capture = cv2.VideoCapture(0)
 
+    # For aiming state between frames
+    state: dict = {}
+
     while True:
         # Capture frame-by-frame
         ret, frame = video_capture.read()
@@ -276,8 +280,9 @@ def generate_camera_video(
         # The robot's camera is mounted sideways
         # frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
-        do_aiming(frame, turret_controller)
-        # if Settings().do_aiming:
+        if Settings().do_aiming:
+
+            do_haar_aiming(frame, turret_controller, state)
         #     minimum_hue: int = Settings().minimum_hue_target
         #     maximum_hue: int = Settings().maximum_hue_target
 
