@@ -4,6 +4,7 @@
 
 """Generators for video streams that use OpenCV."""
 import logging
+import math
 import time
 
 # import time
@@ -115,35 +116,82 @@ def _draw_vertical_line(
     )
 
 
+def _draw_point(
+    frame: numpy.ndarray,
+    x_coordinate: float,
+    y_coordinate: float,
+    radius: int = 8,
+    colour: Tuple = (255, 0, 0),
+    thickness: int = 2,
+) -> None:
+    cv2.circle(frame, (int(x_coordinate), int(y_coordinate)), radius, colour, thickness)
+
+
 def _aim(
     current_center_x: float,
+    current_center_y: float,
     image_center_x: float,
+    image_center_y: float,
     image_width: float,
     image_height: float,
     threshold: int,
+    firing_threshold: int,
     streaming_frame: numpy.ndarray,
     turret_controller: Optional[TurretController],
 ) -> None:
-    # print(f"{image_width=}")
+    _draw_point(streaming_frame, image_center_x, image_center_y)
+    _draw_point(streaming_frame, current_center_x, current_center_y)
+    logging.warning(
+        "image_width %s image_height: %s", str(image_width), str(image_height)
+    )
+    logging.warning(
+        "image_center_x: %s image_center_y: %s",
+        str(image_center_x),
+        str(image_center_y),
+    )
+    logging.warning(
+        "current_center_x: %s current_center_y: %s",
+        str(current_center_x),
+        str(current_center_y),
+    )
 
-    right_threshold: float = image_center_x + image_width / threshold
-    left_threshold: float = image_center_x - image_width / threshold
+    current_distance: float = math.dist(
+        (image_center_x, image_center_y), (current_center_x, current_center_y)
+    )
+    x_distance: float = abs(image_center_x - current_center_x)
+    y_distance: float = abs(image_center_y - current_center_y)
 
-    _draw_vertical_line(streaming_frame, right_threshold, image_height)
-    _draw_vertical_line(streaming_frame, left_threshold, image_height)
+    logging.warning(
+        "current_distance: %s firing_threshold: %s x_distance: %s y_distance: %s",
+        str(current_distance),
+        str(firing_threshold),
+        str(x_distance),
+        str(y_distance),
+    )
 
-    default_left_nudge: float = 0.1
-
-    if current_center_x > right_threshold and turret_controller:
-        logging.warning("Object right")
-        turret_controller.nudge_x(-default_left_nudge)
-
-    elif current_center_x < left_threshold and turret_controller:
+    default_nudge: float = 0.1
+    if current_distance <= firing_threshold:
+        logging.warning("FIRE!!!!")
+        if turret_controller:
+            turret_controller.launch()
+    elif current_center_x < image_center_x and x_distance > firing_threshold:
         logging.warning("Object left")
-        turret_controller.nudge_x(default_left_nudge)
-
+        if turret_controller:
+            turret_controller.nudge_x(default_nudge)
+    elif current_center_x > image_center_x and x_distance > firing_threshold:
+        logging.warning("Object right")
+        if turret_controller:
+            turret_controller.nudge_x(-default_nudge)
+    elif current_center_y < image_center_y and y_distance > firing_threshold:
+        logging.warning("Object up")
+        if turret_controller:
+            turret_controller.nudge_y(default_nudge)
+    elif current_center_y > image_center_y and y_distance > firing_threshold:
+        logging.warning("Object Down")
+        if turret_controller:
+            turret_controller.nudge_y(-default_nudge)
     else:
-        logging.warning("Object at the center")
+        logging.warning("NO ACTION TAKEN!")
 
 
 def do_mask_based_aiming(
@@ -160,7 +208,7 @@ def do_mask_based_aiming(
     """Aim with a HSV mask."""
     image_height, image_width, _ = frame.shape
     image_center_x: float = image_width / 2
-    # image_center_y: float = image_height / 2
+    image_center_y: float = image_height / 2
 
     hsv_frame: numpy.ndarray = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
@@ -194,17 +242,22 @@ def do_mask_based_aiming(
     else:
         _draw_contour(streaming_frame, contour_target)
 
-        position_x, _, width, _ = _contour_to_rectangle(contour_target)
+        position_x, position_y, width, height = _contour_to_rectangle(contour_target)
         # current_max_area: float = width * height
         current_center_x: float = position_x + width / 2
-        # current_center_y: float = position_y + height / 2
+        current_center_y: float = position_y + height / 2
+
+        firing_threshold: int = Settings().firing_threshold
 
         _aim(
             current_center_x,
+            current_center_y,
             image_center_x,
+            image_center_y,
             image_width,
             image_height,
             aim_threshold,
+            firing_threshold,
             streaming_frame,
             turret_controller,
         )
