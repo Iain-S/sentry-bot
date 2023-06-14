@@ -21,3 +21,4 @@ class Settings(BaseSettings):
     maximum_hue_target: int = 50
     streaming_source: int = 2
     firing_threshold: int = 20
+    frame_delay: float = 0.03

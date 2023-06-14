@@ -127,6 +127,19 @@ def _draw_point(
     cv2.circle(frame, (int(x_coordinate), int(y_coordinate)), radius, colour, thickness)
 
 
+def _add_text(frame: numpy.ndarray, text: str) -> None:
+    cv2.putText(
+        frame,
+        text,
+        (10, 600),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.7,
+        (0, 255, 0),
+        2,
+        cv2.LINE_AA,
+    )
+
+
 def _aim(
     current_center_x: float,
     current_center_y: float,
@@ -171,27 +184,27 @@ def _aim(
 
     default_nudge: float = 0.1
     if current_distance <= firing_threshold:
-        logging.warning("FIRE!!!!")
+        _add_text(streaming_frame, "FIRE!!!!")
         if turret_controller:
             turret_controller.launch()
     elif current_center_x < image_center_x and x_distance > firing_threshold:
-        logging.warning("Object left")
+        _add_text(streaming_frame, "Object left")
         if turret_controller:
             turret_controller.nudge_x(default_nudge)
     elif current_center_x > image_center_x and x_distance > firing_threshold:
-        logging.warning("Object right")
+        _add_text(streaming_frame, "Object right")
         if turret_controller:
             turret_controller.nudge_x(-default_nudge)
     elif current_center_y < image_center_y and y_distance > firing_threshold:
-        logging.warning("Object up")
+        _add_text(streaming_frame, "Object up")
         if turret_controller:
             turret_controller.nudge_y(default_nudge)
     elif current_center_y > image_center_y and y_distance > firing_threshold:
-        logging.warning("Object Down")
+        _add_text(streaming_frame, "Object Down")
         if turret_controller:
             turret_controller.nudge_y(-default_nudge)
     else:
-        logging.warning("NO ACTION TAKEN!")
+        _add_text(streaming_frame, "NO ACTION TAKEN!")
 
 
 def do_mask_based_aiming(
@@ -318,7 +331,7 @@ def generate_camera_video(
 
         if not ret:
             logging.warning("Can't receive frame (stream end?).")
-            sleep(0.03)
+            sleep(Settings().frame_delay)
 
         frame = cv2.resize(frame, (640, 360), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
 
@@ -365,7 +378,7 @@ def generate_camera_video(
         # Ensure the frame was successfully encoded
         if flag:
             yield bytearray(encoded_image)
-            time.sleep(0.03)
+            time.sleep(Settings().frame_delay)
 
 
 class OpenCVCamera:
