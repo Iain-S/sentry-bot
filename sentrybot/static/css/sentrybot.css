@@ -166,8 +166,20 @@ header h1 {
   pointer-events: none;
   transition: 0.2s;
   z-index: 1;
-  transform: rotate(90deg);
 }
+.menu-item button.drive {
+  transform: rotate(135deg);
+}
+.menu-item button.shoot {
+  transform: rotate(120deg);
+}
+.menu-item button.hide {
+  transform: rotate(85deg);
+}
+.menu-item button.show {
+  transform: rotate(225deg);
+}
+
 .menu-item button:hover {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
   color: white;
