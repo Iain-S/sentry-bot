@@ -37,7 +37,7 @@ body {
   .menu-toggler:checked + label:after {
     transform: rotate(-45deg);
   }
-  .menu-toggler:checked ~ ul .menu-item { 
+  .menu-toggler:checked ~ ul .menu-item {
     opacity: 1;
   }
   .menu-toggler:checked ~ ul .menu-item:nth-child(1) {

@@ -40,7 +40,7 @@ header h1 {
   flex-basis: 0%;
   display: flex;
   justify-content: center;
-  align-items: center; 
+  align-items: center;
 }
 
 .right-container {
@@ -98,7 +98,7 @@ header h1 {
 .menu-toggler:checked + label:after {
   transform: rotate(-45deg);
 }
-.menu-toggler:checked ~ ul .menu-item { 
+.menu-toggler:checked ~ ul .menu-item {
   opacity: 1;
 }
 .menu-toggler:checked ~ ul .menu-item:nth-child(1) {
