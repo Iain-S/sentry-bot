@@ -22,3 +22,17 @@ function fire() {
     .then(response => response.text())
     .then(text => console.log(text))
 }
+
+function hideDiv() {
+    const elementToHide = document.querySelector('.top');
+    if (elementToHide.style.display == 'none') {
+        elementToHide.style.display = 'block';
+    } else {
+        elementToHide.style.display = 'none';
+    }
+
+}
+
+function shoot() {
+    console.log('Shots fired')
+}
