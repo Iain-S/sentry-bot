@@ -49,9 +49,7 @@ def _aim(
     firing_threshold: int,
     streaming_frame: numpy.ndarray,
     turret_controller: Optional[TurretController],
-) -> None:
-    _draw_point(streaming_frame, camera_center_x, camera_center_y)
-
+) -> bool:
     red_colour: Tuple = (0, 0, 255)
     _draw_point(streaming_frame, target_center_x, target_center_y, colour=red_colour)
 
@@ -94,7 +92,9 @@ def _aim(
         _add_text(streaming_frame, "FIRE!!!!", colour=red_colour)
         if turret_controller:
             turret_controller.launch()
-    elif target_center_x < turret_center_x and x_distance > firing_threshold:
+
+        return True
+    if target_center_x < turret_center_x and x_distance > firing_threshold:
         _add_text(streaming_frame, f"Object left. Distance: {int(current_distance)}")
         if turret_controller:
             turret_controller.nudge_x(default_nudge)
@@ -114,6 +114,8 @@ def _aim(
         _add_text(
             streaming_frame, f"NO ACTION TAKEN! Distance: {int(current_distance)}"
         )
+
+    return False
 
 
 def _detect_target(
@@ -176,7 +178,7 @@ def do_mask_based_aiming(
     maximum_parameter_value: int = 255,
     minimum_target_area: int = 0,
     maximum_target_area: int = 100000,
-) -> numpy.ndarray:
+) -> Tuple[numpy.ndarray, bool]:
     """Aim with a HSV mask."""
     image_height, image_width, _ = frame.shape
     image_center_x: float = image_width / 2
@@ -203,6 +205,9 @@ def do_mask_based_aiming(
     elif Settings().streaming_source == 2:
         streaming_frame = colour_mask
 
+    _draw_point(streaming_frame, image_center_x, image_center_y)
+
+    projectile_launched: bool = False
     contours, _ = cv2.findContours(colour_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     logging.warning("Detected contours: %s", str(len(contours)))
@@ -210,7 +215,7 @@ def do_mask_based_aiming(
     contour_target = _detect_target(contours, minimum_target_area, maximum_target_area)
 
     if contour_target is None:
-        logging.warning("No target detected")
+        _add_text(streaming_frame, "No target detected")
     else:
         # _draw_contour(streaming_frame, contour_target)
 
@@ -221,7 +226,7 @@ def do_mask_based_aiming(
 
         firing_threshold: int = Settings().firing_threshold
 
-        _aim(
+        projectile_launched = _aim(
             current_center_x,
             current_center_y,
             image_center_x,
@@ -235,4 +240,4 @@ def do_mask_based_aiming(
 
     # e.g. turret_controller.nudge_x()
 
-    return streaming_frame
+    return streaming_frame, projectile_launched
