@@ -24,7 +24,7 @@
                 <label for="ypos">Y Position:</label>
                 <input type="text" id="ypos"><br>
                 <input type="button" value="Move" onclick="testFunc()">
-                <input type="button" value="FIRE!!!!!" onclick="fire()">
+                <input type="button" value="FIRE!!!!!" onclick="fire()" class="firebutton">
             </form>
         </div>
         <div class="right-container">
@@ -52,7 +52,7 @@
     parent.appendChild(brd)
     // document.body.insertBefore(brd, document.getElementById("board"));
     const duration = 3000;
-    const speed = 3; // speed for movement in y-direction
+    const speed = 0.05; // speed for movement in y-direction; 0.05
 
     var hearts = [];
 
@@ -71,7 +71,6 @@
         heart.setAttribute('class', 'heart');
         brd.appendChild(heart);
         heart.time = duration;
-        console.log(containerWidth + 'px')
         heart.x = xStartPos + containerX;
         heart.y = yStartPos + containerY;
         heart.bound = containerWidth + "px";
@@ -93,20 +92,30 @@
             generateHeart(randomSign, heartScale);
         }
     }
-    callFunctionMultipleTimes(20); // TODO: is this doing anything
+
     var before = Date.now();
-    var id = setInterval(frame, 25);
+    var id;
+    function fire() {
+        // Call the frame function to start the animation
+        callFunctionMultipleTimes(30);
+        // var id = setInterval(frame, 10);
+        clearInterval(id);
+        frame();
+
+
+    }
+
+
     function frame() {
         var current = Date.now();
         var deltaTime = current - before;
         before = current;
+        id = setInterval(frame, 3);
         for (i in hearts) {
             var heart = hearts[i];
             heart.time -= deltaTime;
 
             if (heart.time > 0) {
-                heart.y -= speed;
-                heart.style.top = heart.y + "px";
 
                 // Add random movement
                 var randomX = Math.floor(Math.random() * 20) - 10;
@@ -120,7 +129,7 @@
                 heart.style.left = heart.x + heart.direction * heart.bound * Math.sin(heart.y * heart.scale / 30) / heart.y * 200 + "px";
 
                 // Add swinging motion
-                var rotationAngle = Math.sin(heart.y * heart.scale / 30) * 10; // Adjust this value to control the swinging amplitude
+                var rotationAngle = Math.sin(heart.y * heart.scale / 100) * 20; // *20 Adjust this value to control the swinging amplitude
                 heart.style.transform = "scale(" + heart.scale + "," + heart.scale + ") rotate(" + rotationAngle + "deg)";
             }
             else {
