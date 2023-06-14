@@ -22,3 +22,4 @@ class Settings(BaseSettings):
     streaming_source: int = 2
     firing_threshold: int = 20
     frame_delay: float = 0.03
+    default_nudge: float = 0.1

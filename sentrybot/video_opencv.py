@@ -182,29 +182,29 @@ def _aim(
         str(y_distance),
     )
 
-    default_nudge: float = 0.1
+    default_nudge: float = Settings().default_nudge
     if current_distance <= firing_threshold:
         _add_text(streaming_frame, "FIRE!!!!")
         if turret_controller:
             turret_controller.launch()
     elif current_center_x < image_center_x and x_distance > firing_threshold:
-        _add_text(streaming_frame, "Object left")
+        _add_text(streaming_frame, f"Object left. Distance: {current_distance}")
         if turret_controller:
             turret_controller.nudge_x(default_nudge)
     elif current_center_x > image_center_x and x_distance > firing_threshold:
-        _add_text(streaming_frame, "Object right")
+        _add_text(streaming_frame, f"Object right Distance: {current_distance}")
         if turret_controller:
             turret_controller.nudge_x(-default_nudge)
     elif current_center_y < image_center_y and y_distance > firing_threshold:
-        _add_text(streaming_frame, "Object up")
+        _add_text(streaming_frame, f"Object up Distance: {current_distance}")
         if turret_controller:
             turret_controller.nudge_y(default_nudge)
     elif current_center_y > image_center_y and y_distance > firing_threshold:
-        _add_text(streaming_frame, "Object Down")
+        _add_text(streaming_frame, f"Object Down Distance: {current_distance}")
         if turret_controller:
             turret_controller.nudge_y(-default_nudge)
     else:
-        _add_text(streaming_frame, "NO ACTION TAKEN!")
+        _add_text(streaming_frame, f"NO ACTION TAKEN! Distance: {current_distance}")
 
 
 def do_mask_based_aiming(
