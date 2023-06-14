@@ -17,6 +17,7 @@ import cv2  # type: ignore
 import numpy
 
 from sentrybot.client_instruction import ClientInstruction
+from sentrybot.haar_aiming import do_haar_aiming
 from sentrybot.http_server import StreamingOutput
 from sentrybot.settings import Settings
 from sentrybot.turret_controller import TurretController
@@ -290,7 +291,11 @@ def do_aiming(
     # pylint: disable=no-member,unused-argument
 
     # cv2 comes with cascade files
-    casc_path = Path(cv2.__path__[0]) / "data/haarcascade_frontalface_default.xml"
+    # casc_path = Path(cv2.__path__[0]) / "data/haarcascade_frontalface_default.xml"
+    casc_path = (
+        Path(__file__).parent.resolve() / "cascades/cascade_12stages_24dim_0_25far.xml"
+    )
+    casc_path.exists()
     face_cascade = cv2.CascadeClassifier(str(casc_path))
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -327,6 +332,9 @@ def generate_camera_video(
 
     video_capture = cv2.VideoCapture(0)
 
+    # For aiming state between frames
+    state: dict = {}
+
     while True:
         # Capture frame-by-frame
         ret, frame = video_capture.read()
@@ -343,20 +351,19 @@ def generate_camera_video(
 
         # do_aiming(frame, turret_controller)
         if settings.do_aiming:
-            minimum_hue: int = settings.minimum_hue_target
-            maximum_hue: int = settings.maximum_hue_target
 
-            # Last working values: 0/60
+            if settings.do_haar_aiming:
+                do_haar_aiming(frame, turret_controller, state)
+            else:
+                minimum_hue: int = settings.minimum_hue_target
+                maximum_hue: int = settings.maximum_hue_target
 
-            # minimum_hue: int = 0
-            # maximum_hue: int = 60
-
-            frame = do_mask_based_aiming(
-                frame,
-                turret_controller,
-                minimum_hue=minimum_hue,
-                maximum_hue=maximum_hue,
-            )
+                frame = do_mask_based_aiming(
+                    frame,
+                    turret_controller,
+                    minimum_hue=minimum_hue,
+                    maximum_hue=maximum_hue,
+                )
 
         # Draw a dot where the mouse is
         if turret_instruction:
@@ -381,7 +388,7 @@ def generate_camera_video(
         # Ensure the frame was successfully encoded
         if flag:
             yield bytearray(encoded_image)
-            time.sleep(Settings().frame_delay)
+            time.sleep(settings.frame_delay)
 
 
 class OpenCVCamera:
