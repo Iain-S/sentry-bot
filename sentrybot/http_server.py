@@ -189,9 +189,8 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
         elif self.path == "/latest-image.jpg":
             self.camera.start_recording(OUTPUT, format="mjpeg")
             with OUTPUT.condition:
-                for _ in range(2):
-                    OUTPUT.condition.wait()
-                    frame = OUTPUT.frame
+                OUTPUT.condition.wait()
+                frame = OUTPUT.frame
             # ToDo Remove one of these two send_response()s
             self.send_response(200)
             self.send_header("Age", "0")
