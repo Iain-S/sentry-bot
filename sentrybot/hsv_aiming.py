@@ -212,7 +212,7 @@ def do_mask_based_aiming(
     if contour_target is None:
         logging.warning("No target detected")
     else:
-        _draw_contour(streaming_frame, contour_target)
+        # _draw_contour(streaming_frame, contour_target)
 
         position_x, position_y, width, height = _contour_to_rectangle(contour_target)
         # current_max_area: float = width * height
