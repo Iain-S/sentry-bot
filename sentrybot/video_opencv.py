@@ -185,8 +185,7 @@ def _aim(
     default_nudge: float = Settings().default_nudge
     if current_distance <= firing_threshold:
         if turret_controller:
-            _add_text(streaming_frame, "Targeting ...")
-            turret_controller.nudge_y(-default_nudge)
+            turret_controller.nudge_y(-default_nudge * 2)
             _add_text(streaming_frame, "FIRE!!!!")
             turret_controller.launch()
     elif current_center_x < image_center_x and x_distance > firing_threshold:
