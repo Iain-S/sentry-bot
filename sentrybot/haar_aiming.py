@@ -33,7 +33,7 @@ def do_haar_aiming(
     casc_path = (
         Path(__file__).parent.resolve() / "cascades/cascade_12stages_24dim_0_25far.xml"
     )
-    casc_path = Path(cv2.__path__[0]) / "data/haarcascade_frontalface_default.xml"
+    # casc_path = Path(cv2.__path__[0]) / "data/haarcascade_frontalface_default.xml"
 
     ball_cascade = cv2.CascadeClassifier(str(casc_path))
 
