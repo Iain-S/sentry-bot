@@ -1,10 +1,10 @@
-"use strict";
+import { handleKeyEvent } from "./mouse.js";
 function streamImages() {
     const cameraImage = document.getElementById("latest-image-id");
     const req = new XMLHttpRequest();
     req.addEventListener("load", (event) => {
-        console.log("Image request successfully received");
-        console.log(event);
+        // console.log("Image request successfully received");
+        // console.log(event);
         if (event.target != null) {
             const target = event.target;
             const response = target.response;
@@ -24,5 +24,7 @@ function streamImages() {
     setTimeout(streamImages, 1.0);
 }
 window.onload = () => {
+    // Key presses
+    window.addEventListener("keydown", handleKeyEvent);
     streamImages();
 };
