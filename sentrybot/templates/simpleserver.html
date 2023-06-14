@@ -24,7 +24,7 @@
                 <label for="ypos">Y Position:</label>
                 <input type="text" id="ypos"><br>
                 <input type="button" value="Move" onclick="testFunc()">
-                <input type="button" value="FIRE!!!!!" onclick="fire()">
+                <input type="button" value="FIRE!!!!!" onclick="fire()" class="firebutton">
             </form>
         </div> -->
         <div class="right-container">
@@ -47,9 +47,105 @@
                         <button class="drive" onclick="">&#128663;</button>
                     </li>
                 </ul>
+
             </div>
         </div>
-      </div>
+    </div>
 </body>
+<script>
+    let parent = document.querySelector(".videocontainer");
+    var brd = document.createElement("DIV");
+    parent.appendChild(brd)
+    // document.body.insertBefore(brd, document.getElementById("board"));
+    const duration = 3000;
+    const speed = 0.05; // speed for movement in y-direction; 0.05
+
+    var hearts = [];
+
+    function generateHeart(xStart, scale) {
+        var videoContainer = document.querySelector('.videocontainer');
+        var containerRect = videoContainer.getBoundingClientRect();
+        var containerWidth = containerRect.width;
+        var containerHeight = containerRect.height;
+        var containerX = containerRect.left;
+        var containerY = containerRect.top;
+        var xStartPos = Math.random() * containerWidth;
+        var yStartPos = (Math.random() * 0.3 + 0.7) * containerHeight;
+
+
+        var heart = document.createElement("DIV");
+        heart.setAttribute('class', 'heart');
+        brd.appendChild(heart);
+        heart.time = duration;
+        heart.x = xStartPos + containerX;
+        heart.y = yStartPos + containerY;
+        heart.bound = containerWidth + "px";
+        heart.direction = xStart;
+        heart.style.left = heart.x + "px";
+        heart.style.top = heart.y + "px";
+        heart.scale = scale;
+        heart.style.transform = "scale(" + scale + "," + scale + ")";
+        if (hearts == null)
+            hearts = [];
+        hearts.push(heart);
+        return heart;
+    }
+
+    function callFunctionMultipleTimes(numCalls) {
+        for (var i = 0; i < numCalls; i++) {
+            var heartScale = Math.random() * 1.5;
+            var randomSign = Math.random() < 0.5 ? -1 : 1;
+            generateHeart(randomSign, heartScale);
+        }
+    }
+
+    var before = Date.now();
+    var id;
+    function fire() {
+        // Call the frame function to start the animation
+        callFunctionMultipleTimes(30);
+        // var id = setInterval(frame, 10);
+        clearInterval(id);
+        frame();
+
+
+    }
+
+
+    function frame() {
+        var current = Date.now();
+        var deltaTime = current - before;
+        before = current;
+        id = setInterval(frame, 3);
+        for (i in hearts) {
+            var heart = hearts[i];
+            heart.time -= deltaTime;
+
+            if (heart.time > 0) {
+
+                // Add random movement
+                var randomX = Math.floor(Math.random() * 20) - 10;
+                var randomY = Math.floor(Math.random() * 20) - 10;
+
+                // Adjust the multiplier for x-direction movement
+                var xMovementMultiplier = 0.5; // Modify this value to control the swinging motion
+                //
+                heart.y -= speed;
+                heart.style.top = heart.y + "px";
+                heart.style.left = heart.x + heart.direction * heart.bound * Math.sin(heart.y * heart.scale / 30) / heart.y * 200 + "px";
+
+                // Add swinging motion
+                var rotationAngle = Math.sin(heart.y * heart.scale / 100) * 20; // *20 Adjust this value to control the swinging amplitude
+                heart.style.transform = "scale(" + heart.scale + "," + heart.scale + ") rotate(" + rotationAngle + "deg)";
+            }
+            else {
+                heart.parentNode.removeChild(heart);
+                hearts.splice(i, 1);
+            }
+        }
+
+    }
+
+</script>
 
 </html>
