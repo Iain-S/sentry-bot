@@ -270,7 +270,7 @@ def generate_camera_video(
         frame = cv2.resize(frame, (640, 360), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
 
         # The robot's camera is mounted sideways
-        frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        # frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
         # do_aiming(frame, turret_controller)
         if Settings().do_aiming:
