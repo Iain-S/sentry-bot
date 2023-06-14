@@ -4,19 +4,20 @@
 
 """Generators for video streams that use OpenCV."""
 import logging
-import math
 import time
 
 # import time
 from pathlib import Path
 from threading import Event, Thread
 from time import sleep
-from typing import Any, Generator, List, Optional, Tuple
+from typing import Generator, Optional
 
 import cv2  # type: ignore
 import numpy
 
 from sentrybot.client_instruction import ClientInstruction
+from sentrybot.haar_aiming import do_haar_aiming
+from sentrybot.hsv_aiming import do_mask_based_aiming
 from sentrybot.http_server import StreamingOutput
 from sentrybot.settings import Settings
 from sentrybot.turret_controller import TurretController
@@ -52,57 +53,6 @@ def generate_file_video(video_path: str) -> Generator[bytes, None, None]:
                 )
 
 
-def _contour_to_rectangle(contour: Any) -> Tuple[int, int, int, int]:
-    polygonal_curve = cv2.approxPolyDP(contour, 3, True)
-    bounding_rectangle = cv2.boundingRect(polygonal_curve)
-
-    return (
-        bounding_rectangle[0],
-        bounding_rectangle[1],
-        bounding_rectangle[2],
-        bounding_rectangle[3],
-    )
-
-
-def _detect_target(
-    contours: List, minimum_target_area: float, maximum_target_area: float
-) -> Optional[Any]:
-    current_max_area: float = 0
-    current_contour = None
-
-    for contour in contours:
-        # _, _, width, height = _contour_to_rectangle(contour)
-        # area = width * height
-
-        area = cv2.contourArea(contour)
-
-        if area > current_max_area:
-            current_max_area = area
-            current_contour = contour
-    if minimum_target_area < current_max_area < maximum_target_area:
-        return current_contour
-
-    return None
-
-
-def _draw_contour(frame: numpy.ndarray, contour: Any) -> None:
-    (
-        contour_x,
-        contour_y,
-        contour_width,
-        contour_height,
-    ) = _contour_to_rectangle(contour)
-
-    cv2.rectangle(
-        frame,
-        pt1=(contour_x, contour_y),
-        pt2=(contour_x + contour_width, contour_y + contour_height),
-        color=(255, 0, 0),
-        thickness=3,
-    )
-    cv2.drawContours(frame, [contour], 0, (0, 255, 0), 3)
-
-
 def _draw_vertical_line(
     streaming_frame: numpy.ndarray, x_position: float, height: float
 ) -> None:
@@ -116,170 +66,6 @@ def _draw_vertical_line(
     )
 
 
-def _draw_point(
-    frame: numpy.ndarray,
-    x_coordinate: float,
-    y_coordinate: float,
-    radius: int = 8,
-    colour: Tuple = (255, 0, 0),
-    thickness: int = 2,
-) -> None:
-    cv2.circle(frame, (int(x_coordinate), int(y_coordinate)), radius, colour, thickness)
-
-
-def _add_text(frame: numpy.ndarray, text: str) -> None:
-    cv2.putText(
-        frame,
-        text,
-        (10, 600),
-        cv2.FONT_HERSHEY_SIMPLEX,
-        0.7,
-        (0, 255, 0),
-        2,
-        cv2.LINE_AA,
-    )
-
-
-def _aim(
-    current_center_x: float,
-    current_center_y: float,
-    image_center_x: float,
-    image_center_y: float,
-    image_width: float,
-    image_height: float,
-    threshold: int,
-    firing_threshold: int,
-    streaming_frame: numpy.ndarray,
-    turret_controller: Optional[TurretController],
-) -> None:
-    _draw_point(streaming_frame, image_center_x, image_center_y)
-    _draw_point(streaming_frame, current_center_x, current_center_y)
-    logging.warning(
-        "image_width %s image_height: %s", str(image_width), str(image_height)
-    )
-    logging.warning(
-        "image_center_x: %s image_center_y: %s",
-        str(image_center_x),
-        str(image_center_y),
-    )
-    logging.warning(
-        "current_center_x: %s current_center_y: %s",
-        str(current_center_x),
-        str(current_center_y),
-    )
-
-    current_distance: float = math.dist(
-        (image_center_x, image_center_y), (current_center_x, current_center_y)
-    )
-    x_distance: float = abs(image_center_x - current_center_x)
-    y_distance: float = abs(image_center_y - current_center_y)
-
-    logging.warning(
-        "current_distance: %s firing_threshold: %s x_distance: %s y_distance: %s",
-        str(current_distance),
-        str(firing_threshold),
-        str(x_distance),
-        str(y_distance),
-    )
-
-    default_nudge: float = Settings().default_nudge
-    if current_distance <= firing_threshold:
-        _add_text(streaming_frame, "FIRE!!!!")
-        if turret_controller:
-            turret_controller.launch()
-    elif current_center_x < image_center_x and x_distance > firing_threshold:
-        _add_text(streaming_frame, f"Object left. Distance: {current_distance}")
-        if turret_controller:
-            turret_controller.nudge_x(default_nudge)
-    elif current_center_x > image_center_x and x_distance > firing_threshold:
-        _add_text(streaming_frame, f"Object right Distance: {current_distance}")
-        if turret_controller:
-            turret_controller.nudge_x(-default_nudge)
-    elif current_center_y < image_center_y and y_distance > firing_threshold:
-        _add_text(streaming_frame, f"Object up Distance: {current_distance}")
-        if turret_controller:
-            turret_controller.nudge_y(default_nudge)
-    elif current_center_y > image_center_y and y_distance > firing_threshold:
-        _add_text(streaming_frame, f"Object Down Distance: {current_distance}")
-        if turret_controller:
-            turret_controller.nudge_y(-default_nudge)
-    else:
-        _add_text(streaming_frame, f"NO ACTION TAKEN! Distance: {current_distance}")
-
-
-def do_mask_based_aiming(
-    frame: numpy.ndarray,
-    turret_controller: Optional[TurretController],
-    minimum_hue: int = 30,
-    maximum_hue: int = 50,
-    minimum_parameter_value: int = 100,
-    maximum_parameter_value: int = 255,
-    minimum_target_area: int = 0,
-    maximum_target_area: int = 100000,
-    aim_threshold: int = 3,
-) -> numpy.ndarray:
-    """Aim with a HSV mask."""
-    image_height, image_width, _ = frame.shape
-    image_center_x: float = image_width / 2
-    image_center_y: float = image_height / 2
-
-    hsv_frame: numpy.ndarray = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-
-    lower_bound: numpy.ndarray = numpy.array(
-        [minimum_hue, minimum_parameter_value, minimum_parameter_value]
-    )
-    upper_bound: numpy.ndarray = numpy.array(
-        [
-            maximum_hue,
-            maximum_parameter_value,
-            maximum_parameter_value,
-        ]  # Take a look at this. The original code had a bug here.
-    )
-
-    colour_mask: numpy.ndarray = cv2.inRange(hsv_frame, lower_bound, upper_bound)
-
-    streaming_frame = frame
-    if Settings().streaming_source == 1:
-        streaming_frame = hsv_frame
-    elif Settings().streaming_source == 2:
-        streaming_frame = colour_mask
-
-    contours, _ = cv2.findContours(colour_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-
-    logging.warning("Detected contours: %s", str(len(contours)))
-
-    contour_target = _detect_target(contours, minimum_target_area, maximum_target_area)
-
-    if contour_target is None:
-        logging.warning("No target detected")
-    else:
-        _draw_contour(streaming_frame, contour_target)
-
-        position_x, position_y, width, height = _contour_to_rectangle(contour_target)
-        # current_max_area: float = width * height
-        current_center_x: float = position_x + width / 2
-        current_center_y: float = position_y + height / 2
-
-        firing_threshold: int = Settings().firing_threshold
-
-        _aim(
-            current_center_x,
-            current_center_y,
-            image_center_x,
-            image_center_y,
-            image_width,
-            image_height,
-            aim_threshold,
-            firing_threshold,
-            streaming_frame,
-            turret_controller,
-        )
-
-    # e.g. turret_controller.nudge_x()
-
-    return streaming_frame
-
-
 def do_aiming(
     frame: numpy.ndarray, turret_controller: Optional[TurretController]
 ) -> None:
@@ -290,7 +76,11 @@ def do_aiming(
     # pylint: disable=no-member,unused-argument
 
     # cv2 comes with cascade files
-    casc_path = Path(cv2.__path__[0]) / "data/haarcascade_frontalface_default.xml"
+    # casc_path = Path(cv2.__path__[0]) / "data/haarcascade_frontalface_default.xml"
+    casc_path = (
+        Path(__file__).parent.resolve() / "cascades/cascade_12stages_24dim_0_25far.xml"
+    )
+    casc_path.exists()
     face_cascade = cv2.CascadeClassifier(str(casc_path))
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -327,6 +117,9 @@ def generate_camera_video(
 
     video_capture = cv2.VideoCapture(0)
 
+    # For aiming state between frames
+    state: dict = {}
+
     while True:
         # Capture frame-by-frame
         ret, frame = video_capture.read()
@@ -343,20 +136,18 @@ def generate_camera_video(
 
         # do_aiming(frame, turret_controller)
         if settings.do_aiming:
-            minimum_hue: int = settings.minimum_hue_target
-            maximum_hue: int = settings.maximum_hue_target
+            if settings.do_haar_aiming:
+                do_haar_aiming(frame, turret_controller, state)
+            else:
+                minimum_hue: int = settings.minimum_hue_target
+                maximum_hue: int = settings.maximum_hue_target
 
-            # Last working values: 0/60
-
-            # minimum_hue: int = 0
-            # maximum_hue: int = 60
-
-            frame = do_mask_based_aiming(
-                frame,
-                turret_controller,
-                minimum_hue=minimum_hue,
-                maximum_hue=maximum_hue,
-            )
+                frame = do_mask_based_aiming(
+                    frame,
+                    turret_controller,
+                    minimum_hue=minimum_hue,
+                    maximum_hue=maximum_hue,
+                )
 
         # Draw a dot where the mouse is
         if turret_instruction:
@@ -381,7 +172,7 @@ def generate_camera_video(
         # Ensure the frame was successfully encoded
         if flag:
             yield bytearray(encoded_image)
-            time.sleep(Settings().frame_delay)
+            time.sleep(settings.frame_delay)
 
 
 class OpenCVCamera:
