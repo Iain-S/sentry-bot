@@ -224,7 +224,11 @@ def do_aiming(
     # pylint: disable=no-member,unused-argument
 
     # cv2 comes with cascade files
-    casc_path = Path(cv2.__path__[0]) / "data/haarcascade_frontalface_default.xml"
+    # casc_path = Path(cv2.__path__[0]) / "data/haarcascade_frontalface_default.xml"
+    casc_path = (
+        Path(__file__).parent.resolve() / "cascades/cascade_12stages_24dim_0_25far.xml"
+    )
+    casc_path.exists()
     face_cascade = cv2.CascadeClassifier(str(casc_path))
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -270,24 +274,24 @@ def generate_camera_video(
         frame = cv2.resize(frame, (640, 360), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
 
         # The robot's camera is mounted sideways
-        frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        # frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
-        # do_aiming(frame, turret_controller)
-        if Settings().do_aiming:
-            minimum_hue: int = Settings().minimum_hue_target
-            maximum_hue: int = Settings().maximum_hue_target
+        do_aiming(frame, turret_controller)
+        # if Settings().do_aiming:
+        #     minimum_hue: int = Settings().minimum_hue_target
+        #     maximum_hue: int = Settings().maximum_hue_target
 
-            # Last working values: 0/60
+        # Last working values: 0/60
 
-            # minimum_hue: int = 0
-            # maximum_hue: int = 60
+        # minimum_hue: int = 0
+        # maximum_hue: int = 60
 
-            frame = do_mask_based_aiming(
-                frame,
-                turret_controller,
-                minimum_hue=minimum_hue,
-                maximum_hue=maximum_hue,
-            )
+        # frame = do_mask_based_aiming(
+        #     frame,
+        #     turret_controller,
+        #     minimum_hue=minimum_hue,
+        #     maximum_hue=maximum_hue,
+        # )
 
         # Draw a dot where the mouse is
         if turret_instruction:
