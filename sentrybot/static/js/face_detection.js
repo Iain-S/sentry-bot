@@ -2,6 +2,8 @@ import { handleMouseMove, handleMouseClick, handleKeyEvent } from "./mouse.js";
 window.onload = () => {
     const xPos = document.querySelector("#xpos");
     const yPos = document.querySelector("#ypos");
+    // Key presses
+    window.addEventListener("keydown", handleKeyEvent);
     if (yPos == null || xPos == null) {
         console.log("Could not find one or more of xPos and yPos");
         return;
@@ -25,6 +27,4 @@ window.onload = () => {
     box.onclick = () => {
         return handleMouseClick();
     };
-    // Key presses
-    window.addEventListener("keydown", handleKeyEvent);
 };
