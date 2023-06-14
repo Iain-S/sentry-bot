@@ -127,15 +127,15 @@ def _draw_point(
     cv2.circle(frame, (int(x_coordinate), int(y_coordinate)), radius, colour, thickness)
 
 
-def _add_text(frame: numpy.ndarray, text: str) -> None:
+def _add_text(frame: numpy.ndarray, text: str, colour: Tuple = (0, 0, 255)) -> None:
     cv2.putText(
         frame,
         text,
         (10, 600),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.7,
-        (0, 255, 0),
-        2,
+        colour,
+        1,
         cv2.LINE_AA,
     )
 
@@ -193,27 +193,29 @@ def _aim(
 
     default_nudge: float = Settings().default_nudge
     if current_distance <= firing_threshold:
+        _add_text(streaming_frame, "FIRE!!!!", colour=red_colour)
         if turret_controller:
-            _add_text(streaming_frame, "FIRE!!!!")
             turret_controller.launch()
     elif target_center_x < turret_center_x and x_distance > firing_threshold:
-        _add_text(streaming_frame, f"Object left. Distance: {current_distance}")
+        _add_text(streaming_frame, f"Object left. Distance: {int(current_distance)}")
         if turret_controller:
             turret_controller.nudge_x(default_nudge)
     elif target_center_x > turret_center_x and x_distance > firing_threshold:
-        _add_text(streaming_frame, f"Object right Distance: {current_distance}")
+        _add_text(streaming_frame, f"Object right Distance: {int(current_distance)}")
         if turret_controller:
             turret_controller.nudge_x(-default_nudge)
     elif target_center_y < turret_center_y and y_distance > firing_threshold:
-        _add_text(streaming_frame, f"Object up Distance: {current_distance}")
+        _add_text(streaming_frame, f"Object up Distance: {int(current_distance)}")
         if turret_controller:
             turret_controller.nudge_y(default_nudge)
     elif target_center_y > turret_center_y and y_distance > firing_threshold:
-        _add_text(streaming_frame, f"Object Down Distance: {current_distance}")
+        _add_text(streaming_frame, f"Object Down Distance: {int(current_distance)}")
         if turret_controller:
             turret_controller.nudge_y(-default_nudge)
     else:
-        _add_text(streaming_frame, f"NO ACTION TAKEN! Distance: {current_distance}")
+        _add_text(
+            streaming_frame, f"NO ACTION TAKEN! Distance: {int(current_distance)}"
+        )
 
 
 def do_mask_based_aiming(
