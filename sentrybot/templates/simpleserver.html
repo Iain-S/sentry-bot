@@ -61,10 +61,14 @@
     function callFunctionMultipleTimes(numCalls) {
         for (var i = 0; i < numCalls; i++) {
             // Replace 'yourFunctionName' with the actual name of your function
-            generateHeart(150, 300, 400, null, 2);
+            var xStartPos = Math.random() * 640 / 4; // 640 is width of video container
+            var yStartPos = Math.random() * 480;
+            var heartScale = Math.random() * 1.5;
+            var randomSign = Math.random() < 0.5 ? -1 : 1;
+            generateHeart(xStartPos, yStartPos, 640 / 4, randomSign, heartScale);
         }
     }
-    callFunctionMultipleTimes(1); // TODO: is this doing anything
+    callFunctionMultipleTimes(20); // TODO: is this doing anything
     var before = Date.now();
     var id = setInterval(frame, 25);
     function frame() {
@@ -79,25 +83,29 @@
                 heart.y -= speed;
                 heart.style.top = heart.y + "px";
 
-                // Adjust the range of random movement
-                var randomXRange = 100; // Adjust this value for X-axis random movement range
-                var randomYRange = 10; // Adjust this value for Y-axis random movement range
+                // Add random movement
+                var randomX = Math.floor(Math.random() * 20) - 10;
+                var randomY = Math.floor(Math.random() * 20) - 10;
 
-                // Generate random movement within the specified range
-                var randomX = Math.floor(Math.random() * (2 * randomXRange)) - randomXRange;
-                var randomY = Math.floor(Math.random() * (2 * randomYRange)) - randomYRange;
-                var pixelMovement = 75; // Adjust this value for more pixel movement
-                var xMovementMultiplier = 0.5; // TODO: is this working???Adjust this value for desired speed
-                var xMovement = heart.direction * heart.bound * Math.sin(heart.y * heart.scale / 30) * xMovementMultiplier;
-                heart.style.left = heart.x + xMovement + randomX + "px";
-                heart.style.top = heart.y + randomY + "px";
+                // Adjust the multiplier for x-direction movement
+                var xMovementMultiplier = 0.5; // Modify this value to control the swinging motion
+                //
+                heart.y -= speed;
+                heart.style.top = heart.y + "px";
+                heart.style.left = heart.x + heart.direction * heart.bound * Math.sin(heart.y * heart.scale / 30) / heart.y * 200 + "px";
+
+                // Add swinging motion
+                var rotationAngle = Math.sin(heart.y * heart.scale / 30) * 10; // Adjust this value to control the swinging amplitude
+                heart.style.transform = "scale(" + heart.scale + "," + heart.scale + ") rotate(" + rotationAngle + "deg)";
             }
             else {
                 heart.parentNode.removeChild(heart);
                 hearts.splice(i, 1);
             }
         }
+
     }
+
 </script>
 
 </html>
