@@ -99,6 +99,12 @@ header h1 {
 .menu-toggler:checked ~ ul .menu-item:nth-child(2) {
   transform: rotate(315deg) translateX(-45vmin);
 }
+.menu-toggler:checked ~ ul .menu-item:nth-child(3) {
+  transform: rotate(135deg) translateX(-45vmin);
+}
+.menu-toggler:checked ~ ul .menu-item:nth-child(4) {
+  transform: rotate(225deg) translateX(-45vmin);
+}
 
 .menu-toggler:checked ~ ul .menu-item button {
   pointer-events:auto;
@@ -144,6 +150,7 @@ header h1 {
   transition: 0.75s;
   opacity: 0;
   z-index:1;
+  list-style: none;
 }
 .menu-item button {
   display: block;
