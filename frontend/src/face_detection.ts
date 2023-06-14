@@ -1,4 +1,4 @@
-import { handleMouseMove, handleMouseClick } from "./mouse";
+import { handleMouseMove, handleMouseClick, handleKeyEvent } from "./mouse";
 
 window.onload = () => {
   const xPos = document.querySelector("#xpos") as HTMLInputElement | null;
@@ -30,4 +30,7 @@ window.onload = () => {
   box.onclick = () => {
     return handleMouseClick();
   };
+
+  // Key presses
+  window.addEventListener("keydown", handleKeyEvent);
 };

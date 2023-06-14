@@ -15,4 +15,9 @@ class Settings(BaseSettings):
     """Environment variable settings."""
 
     camera_library: CameraLibrary
-    control_turret: bool
+    control_turret: bool  # Try to move the turret
+    do_aiming: bool
+    minimum_hue_target: int = 30
+    maximum_hue_target: int = 50
+    streaming_source: int = 2
+    rotate_feed: bool = True  # Rotate the camera feed

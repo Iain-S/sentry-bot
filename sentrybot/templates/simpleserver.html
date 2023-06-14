@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>MJPEG Stream</title>
     <link rel="apple-touch-icon" sizes="180x180" href="/static/images/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon-16x16.png">
@@ -13,40 +13,68 @@
 </head>
 
 <body>
+    <header>
+        <h1>&#x2665; Mechanical Cupid &#x2665;</h1>
+    </header>
+    <div class="container">
+        <div class="left-container">
+            <form>
+                <label for="xpos">X Position:</label>
+                <input type="text" id="xpos"><br>
+                <label for="ypos">Y Position:</label>
+                <input type="text" id="ypos"><br>
+                <input type="button" value="Move" onclick="testFunc()">
+                <input type="button" value="FIRE!!!!!" onclick="fire()">
+            </form>
+        </div>
+        <div class="right-container">
+            <div class="videocontainer">
+                <img src="stream.mjpg" alt="webcam feed" class="circle-image" />
+                <img class="top" src="static/images/crosshair_3.png">
+                <input checked="checked" class="menu-toggler" type="checkbox">
+                <label for="menu-toggler"></label>
+                <ul class="menu-container">
+                    <li class="menu-item">
+                        <a class="fas fa-cat" href=""></a>
+                    </li>
+                    <li class="menu-item">
+                        <a class="fas fa-cookie-bite" href="#"></a>
+                    </li>
+                </ul>
 
-    <p>Video streaming with picamera.</p>
-    <div class="videocontainer" width="640" height="480">
-        <img src="stream.mjpg" width="640" height="480" alt="webcam feed" />
-        <img class="top" src="static/images/heart_crosshair.png" width="480" height="480">
+            </div>
+        </div>
     </div>
-
-    <p>Hold ctrl and move your mouse in the box to aim the turret.</p>
-    <p>Click anywhere to launch a projectile.</p>
-    <form>
-        <label for="xpos">X Position:</label>
-        <input type="text" id="xpos"><br>
-        <label for="ypos">Y Position:</label>
-        <input type="text" id="ypos"><br>
-        <input type="button" value="Move" onclick="testFunc()">
-        <input type="button" value="FIRE!!!!!" onclick="fire()">
-    </form>
-
 </body>
 <script>
+    let parent = document.querySelector(".videocontainer");
     var brd = document.createElement("DIV");
-    document.body.insertBefore(brd, document.getElementById("board"));
+    parent.appendChild(brd)
+    // document.body.insertBefore(brd, document.getElementById("board"));
     const duration = 3000;
-    const speed = 0.75; // speed for movement in y-direction
+    const speed = 3; // speed for movement in y-direction
 
     var hearts = [];
-    function generateHeart(x, y, xBound, xStart, scale) {
+
+    function generateHeart(xStart, scale) {
+        var videoContainer = document.querySelector('.videocontainer');
+        var containerRect = videoContainer.getBoundingClientRect();
+        var containerWidth = containerRect.width;
+        var containerHeight = containerRect.height;
+        var containerX = containerRect.left;
+        var containerY = containerRect.top;
+        var xStartPos = Math.random() * containerWidth;
+        var yStartPos = (Math.random() * 0.3 + 0.7) * containerHeight;
+
+
         var heart = document.createElement("DIV");
         heart.setAttribute('class', 'heart');
         brd.appendChild(heart);
         heart.time = duration;
-        heart.x = x;
-        heart.y = y;
-        heart.bound = xBound;
+        console.log(containerWidth + 'px')
+        heart.x = xStartPos + containerX;
+        heart.y = yStartPos + containerY;
+        heart.bound = containerWidth + "px";
         heart.direction = xStart;
         heart.style.left = heart.x + "px";
         heart.style.top = heart.y + "px";
@@ -60,12 +88,9 @@
 
     function callFunctionMultipleTimes(numCalls) {
         for (var i = 0; i < numCalls; i++) {
-            // Replace 'yourFunctionName' with the actual name of your function
-            var xStartPos = Math.random() * 640 / 4; // 640 is width of video container
-            var yStartPos = Math.random() * 480;
             var heartScale = Math.random() * 1.5;
             var randomSign = Math.random() < 0.5 ? -1 : 1;
-            generateHeart(xStartPos, yStartPos, 640 / 4, randomSign, heartScale);
+            generateHeart(randomSign, heartScale);
         }
     }
     callFunctionMultipleTimes(20); // TODO: is this doing anything
