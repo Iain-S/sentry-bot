@@ -68,3 +68,46 @@ export function handleMouseMove(event, xPos, yPos) {
         console.log("Could not determine event target.");
     }
 }
+export function handleKeyEvent(event) {
+    const req = new XMLHttpRequest();
+    req.addEventListener("load", (event) => {
+        console.log("Key press received by server");
+    });
+    let params = null;
+    if (event.key == " ") {
+        params = { shouldFire: true };
+    }
+    else if (event.key == "ArrowLeft") {
+        params = {
+            xNudge: -0.1,
+            yNudge: 0.0,
+        };
+    }
+    else if (event.key == "ArrowRight") {
+        params = {
+            xNudge: 0.1,
+            yNudge: 0.0,
+        };
+    }
+    else if (event.key == "ArrowUp") {
+        params = {
+            xNudge: 0.0,
+            yNudge: -0.1,
+        };
+    }
+    else if (event.key == "ArrowDown") {
+        params = {
+            xNudge: 0.0,
+            yNudge: 0.1,
+        };
+    }
+    else {
+        return;
+    }
+    if (params == null) {
+        return;
+    }
+    req.open("GET", "/ajax-data" + formatParams(params));
+    req.setRequestHeader("Content-type", "application/json; charset=utf-8");
+    req.send();
+}
