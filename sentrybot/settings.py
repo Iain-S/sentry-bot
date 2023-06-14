@@ -24,3 +24,4 @@ class Settings(BaseSettings):
     frame_delay: float = 0.03
     default_nudge: float = 0.1
     rotate_feed: bool = True  # Rotate the camera feed
+    camera_offset: int = 100
