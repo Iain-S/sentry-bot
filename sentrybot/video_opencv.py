@@ -37,6 +37,7 @@ def generate_camera_video(
     # For aiming state between frames
     state: dict = {}
 
+    projectile_launched: bool = False
     while True:
         # Capture frame-by-frame
         ret, frame = video_capture.read()
@@ -53,18 +54,23 @@ def generate_camera_video(
         if settings.rotate_feed:
             frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
-        if settings.do_aiming:
+        # do_aiming(frame, turret_controller)
+        if settings.do_aiming and not projectile_launched:
             if settings.do_haar_aiming:
                 do_haar_aiming(frame, turret_controller, state)
             else:
                 minimum_hue: int = settings.minimum_hue_target
                 maximum_hue: int = settings.maximum_hue_target
+                minimum_value: int = settings.minimum_value_target
+                maximum_value: int = settings.maximum_value_target
 
-                frame = do_mask_based_aiming(
+                frame, projectile_launched = do_mask_based_aiming(
                     frame,
                     turret_controller,
                     minimum_hue=minimum_hue,
                     maximum_hue=maximum_hue,
+                    minimum_value=minimum_value,
+                    maximum_value=maximum_value,
                 )
 
         # Draw a dot where the mouse is
