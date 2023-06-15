@@ -33,3 +33,14 @@ function hideDiv() {
     }
 
 }
+
+var widescreen = true;
+function enlarge() {
+    const selector = '.videocontainer img';
+    const width = widescreen ? '150vmin' : '70vmin';
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(element => {
+        element.style.width = width;
+    });
+    widescreen = !widescreen;
+}
