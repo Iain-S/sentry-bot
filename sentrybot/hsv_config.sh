@@ -1,7 +1,7 @@
 #!/bin/sh
 
 export CAMERA_LIBRARY=opencv
-export CONTROL_TURRENT=1
+export CONTROL_TURRET=1
 export DO_AIMING=1
 export MINIMUM_HUE_TARGET=0
 export MAXIMUM_HUE_TARGET=60
