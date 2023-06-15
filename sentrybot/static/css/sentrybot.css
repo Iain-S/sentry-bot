@@ -160,15 +160,11 @@ transform-origin: 50% 50%;
 }
 
 .menu-toggler:checked~ul .menu-item:nth-child(3) {
-<<<<<<< HEAD
   transform: rotate(290deg) translateX(-34vmin);
-=======
-  transform: rotate(268deg) translate(-32vmin);
 }
 
 .menu-toggler:checked~ul .menu-item:nth-child(4) {
-  transform: rotate(135deg) translateX(-45vmin);
->>>>>>> main
+  transform: rotate(250deg) translate(-34vmin);
 }
 
 .menu-toggler:checked~ul .menu-item:nth-child(1) {
@@ -263,13 +259,12 @@ transform-origin: 50% 50%;
   transform: rotate(180deg);
 }
 
-<<<<<<< HEAD
 .menu-item button.mode {
   transform: rotate(70deg);
-=======
+}
+
 .menu-item button.enlarge {
   transform: rotate(225deg);
->>>>>>> main
 }
 
 .menu-item button:hover {

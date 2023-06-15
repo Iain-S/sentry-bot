@@ -36,7 +36,7 @@ function hideDiv() {
 
 function toggle_mode(){
     console.log('Toggle auto/manual')
-    const button = document.getElementsByClassName('mode');
+    const button = document.querySelectorAll(".mode");
     const currentSymbol = button.innerHTML;
     console.log(currentSymbol)
     // Define the symbols for toggle
@@ -49,8 +49,9 @@ function toggle_mode(){
     } else {
         button.innerHTML = symbol1;
     }
-    console.log(symbol1)
-    console.log(symbol2)
+    console.log(currentSymbol)
+}
+
 
 var widescreen = true;
 function enlarge() {
