@@ -12,13 +12,7 @@ function testFunc() {
 
 function fire() {
     console.log('Fire on target!')
-    xpos = document.getElementById("xpos").value
-    ypos = document.getElementById("ypos").value
-    var params = new URLSearchParams();
-    params.append('xPos', xpos);
-    params.append('yPos', ypos);
-    params.append('shouldFire', true)
-    var url = '/set_desired_coords?' + params.toString();
+    var url = '/ajax-data?shouldFire=1';
     fetch(url)
         .then(response => response.text())
         .then(text => console.log(text))
@@ -34,7 +28,7 @@ function hideDiv() {
 
 }
 
-function toggle_mode(){
+function toggle_mode() {
     const button = document.getElementById("getthis");
     // Define the symbols for toggle
     const symbol1 = '🚗'; // car
