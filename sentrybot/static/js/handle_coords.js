@@ -33,3 +33,23 @@ function hideDiv() {
     }
 
 }
+
+function toggle_mode(){
+    console.log('Toggle auto/manual')
+    const button = document.getElementsByClassName('mode');
+    const currentSymbol = button.innerHTML;
+    console.log(currentSymbol)
+    // Define the symbols for toggle
+    const symbol1 = '&#128663;'; // Hex code for a checkmark symbol
+    const symbol2 = '&#129302;'; // Hex code for a cross symbol
+
+    // Toggle the symbol
+    if (currentSymbol === symbol1) {
+        button.innerHTML = symbol2;
+    } else {
+        button.innerHTML = symbol1;
+    }
+    console.log(symbol1)
+    console.log(symbol2)
+
+}

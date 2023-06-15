@@ -160,11 +160,7 @@ transform-origin: 50% 50%;
 }
 
 .menu-toggler:checked~ul .menu-item:nth-child(3) {
-  transform: rotate(45deg) translate(-45vmin);
-}
-
-.menu-toggler:checked~ul .menu-item:nth-child(4) {
-  transform: rotate(135deg) translateX(-45vmin);
+  transform: rotate(290deg) translateX(-34vmin);
 }
 
 .menu-toggler:checked~ul .menu-item:nth-child(1) {
@@ -208,6 +204,10 @@ transform-origin: 50% 50%;
 }
 
 .menu-item:nth-child(2) button {
+  transform: rotate(0deg);
+}
+
+.menu-item:nth-child(3) button {
   transform: rotate(0deg);
 }
 
@@ -255,8 +255,8 @@ transform-origin: 50% 50%;
   transform: rotate(180deg);
 }
 
-.menu-item button.show {
-  transform: rotate(225deg);
+.menu-item button.mode {
+  transform: rotate(70deg);
 }
 
 .menu-item button:hover {
