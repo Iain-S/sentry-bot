@@ -12,7 +12,6 @@ from time import sleep
 from typing import Generator, Optional
 
 import cv2  # type: ignore
-import numpy
 
 from sentrybot.client_instruction import ClientInstruction
 from sentrybot.haar_aiming import do_haar_aiming
@@ -24,20 +23,8 @@ from sentrybot.turret_controller import TurretController
 # pylint: disable=fixme,unused-argument
 
 
-def _draw_vertical_line(
-    streaming_frame: numpy.ndarray, x_position: float, height: float
-) -> None:
-    # print(f"{x_position=}")
-    cv2.line(
-        streaming_frame,
-        (int(x_position), 0),
-        (int(x_position), height),
-        (255, 0, 0),
-        thickness=2,
-    )
-
-
 def generate_camera_video(
+    pause_aiming: Event,
     turret_instruction: Optional[ClientInstruction] = None,
     turret_controller: Optional[TurretController] = None,
 ) -> Generator[bytes, None, None]:
@@ -51,14 +38,13 @@ def generate_camera_video(
     # For aiming state between frames
     state: dict = {}
 
-    projectile_launched: bool = False
     while True:
         # Capture frame-by-frame
         ret, frame = video_capture.read()
 
         if not ret:
             logging.warning("Can't receive frame (stream end?).")
-            sleep(Settings().frame_delay)
+            sleep(settings.frame_delay)
 
         frame = cv2.resize(
             frame, (0, 0), fx=0.3, fy=0.3, interpolation=cv2.INTER_LINEAR
@@ -68,8 +54,7 @@ def generate_camera_video(
         if settings.rotate_feed:
             frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
-        # do_aiming(frame, turret_controller)
-        if settings.do_aiming and not projectile_launched:
+        if not pause_aiming.is_set():
             if settings.do_haar_aiming:
                 do_haar_aiming(frame, turret_controller, state)
             else:
@@ -78,7 +63,7 @@ def generate_camera_video(
                 minimum_value: int = settings.minimum_value_target
                 maximum_value: int = settings.maximum_value_target
 
-                frame, projectile_launched = do_mask_based_aiming(
+                frame, _ = do_mask_based_aiming(
                     frame,
                     turret_controller,
                     minimum_hue=minimum_hue,
@@ -109,7 +94,10 @@ class OpenCVCamera:
 
     # pylint: disable=redefined-builtin
 
-    def __init__(self, turret_controller: Optional[TurretController]) -> None:
+    def __init__(
+        self, turret_controller: Optional[TurretController], pause_aiming: Event
+    ) -> None:
+        self.pause_aiming = pause_aiming
         self.should_exit = Event()
         self.thread: Optional[Thread] = None
         self.turret_controller = turret_controller
@@ -118,7 +106,7 @@ class OpenCVCamera:
         """Send OpenCV video to output."""
 
         # ToDo Restore client instruction?
-        stream = generate_camera_video(None, self.turret_controller)
+        stream = generate_camera_video(self.pause_aiming, None, self.turret_controller)
         while not should_exit.is_set():
             try:
                 frame = next(stream)

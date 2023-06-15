@@ -16,7 +16,6 @@ class Settings(BaseSettings):
 
     camera_library: CameraLibrary
     control_turret: bool  # Try to move the turret
-    do_aiming: bool  # Enable for auto-aiming.
     minimum_hue_target: int = 0  # For the tennis ball, keep hue between 0 and 60.
     maximum_hue_target: int = 60
     minimum_value_target: int = 0  # For the cat, values should be between 0 and 30
