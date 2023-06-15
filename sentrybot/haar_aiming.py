@@ -82,7 +82,7 @@ def move_toward_target(
     x_distance = -1 * (target_centre[0] - frame_centre[0])
 
     # -ve means target below, +ve target above
-    y_distance = -1 * (target_centre[1] - frame_centre[1])
+    y_distance = -1 * (target_centre[1] - 30 - frame_centre[1])
 
     # ToDo Fine tune these
     x_nudge = x_distance / 1_000
