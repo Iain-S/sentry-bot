@@ -12,7 +12,6 @@ from time import sleep
 from typing import Generator, Optional
 
 import cv2  # type: ignore
-import numpy
 
 from sentrybot.client_instruction import ClientInstruction
 from sentrybot.haar_aiming import do_haar_aiming
@@ -22,19 +21,6 @@ from sentrybot.settings import Settings
 from sentrybot.turret_controller import TurretController
 
 # pylint: disable=fixme,unused-argument
-
-
-def _draw_vertical_line(
-    streaming_frame: numpy.ndarray, x_position: float, height: float
-) -> None:
-    # print(f"{x_position=}")
-    cv2.line(
-        streaming_frame,
-        (int(x_position), 0),
-        (int(x_position), height),
-        (255, 0, 0),
-        thickness=2,
-    )
 
 
 def generate_camera_video(
@@ -57,7 +43,7 @@ def generate_camera_video(
 
         if not ret:
             logging.warning("Can't receive frame (stream end?).")
-            sleep(Settings().frame_delay)
+            sleep(settings.frame_delay)
 
         frame = cv2.resize(
             frame, (0, 0), fx=0.3, fy=0.3, interpolation=cv2.INTER_LINEAR
