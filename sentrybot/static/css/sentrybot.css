@@ -63,7 +63,7 @@ header h1 {
 }
 
 .top {
-  display: block;
+  display: none;
 }
 
 .menu-toggler {
