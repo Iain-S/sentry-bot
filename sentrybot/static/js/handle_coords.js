@@ -6,8 +6,8 @@ function testFunc() {
     params.append('yPos', ypos);
     var url = '/set_desired_coords?' + params.toString();
     fetch(url)
-    .then(response => response.text())
-    .then(text => console.log(text))
+        .then(response => response.text())
+        .then(text => console.log(text))
 }
 
 function fire() {
@@ -19,8 +19,8 @@ function fire() {
     params.append('shouldFire', true)
     var url = '/set_desired_coords?' + params.toString();
     fetch(url)
-    .then(response => response.text())
-    .then(text => console.log(text))
+        .then(response => response.text())
+        .then(text => console.log(text))
 }
 
 function hideDiv() {
@@ -31,8 +31,4 @@ function hideDiv() {
         elementToHide.style.display = 'none';
     }
 
-}
-
-function shoot() {
-    console.log('Shots fired')
 }
