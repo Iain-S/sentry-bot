@@ -34,6 +34,16 @@ function hideDiv() {
 
 }
 
+function toggle_mode() {
+    console.log("Toggle mode")
+    var url = '/ajax-data?toggleAutoAiming=1';
+    fetch(url)
+        .then(response => response.text())
+        .then(text => console.log(text))
+
+}
+
+
 var widescreen = true;
 function enlarge() {
     const selector = '.videocontainer img';
