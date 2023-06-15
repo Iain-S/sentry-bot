@@ -174,8 +174,10 @@ def do_mask_based_aiming(
     turret_controller: Optional[TurretController],
     minimum_hue: int = 30,
     maximum_hue: int = 50,
-    minimum_parameter_value: int = 100,
-    maximum_parameter_value: int = 255,
+    minimum_value: int = 0,
+    maximum_value: int = 255,
+    minimum_saturation: int = 100,
+    maximum_saturation: int = 255,
     minimum_target_area: int = 0,
     maximum_target_area: int = 100000,
 ) -> Tuple[numpy.ndarray, bool]:
@@ -187,13 +189,13 @@ def do_mask_based_aiming(
     hsv_frame: numpy.ndarray = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     lower_bound: numpy.ndarray = numpy.array(
-        [minimum_hue, minimum_parameter_value, minimum_parameter_value]
+        [minimum_hue, minimum_saturation, minimum_value]
     )
     upper_bound: numpy.ndarray = numpy.array(
         [
             maximum_hue,
-            maximum_parameter_value,
-            maximum_parameter_value,
+            maximum_saturation,
+            maximum_value,
         ]  # Take a look at this. The original code had a bug here.
     )
 

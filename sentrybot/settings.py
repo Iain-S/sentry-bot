@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     do_aiming: bool  # Enable for auto-aiming.
     minimum_hue_target: int = 0
     maximum_hue_target: int = 60
+    minimum_value_target: int = 0
+    maximum_value_target: int = 255
     streaming_source: int = 2  # 0 for raw camera output
     do_haar_aiming: bool = False
     firing_threshold: int = 20  # 30 for half-distance targets
