@@ -157,16 +157,21 @@ transform-origin: 50% 50%;
 
 .menu-toggler:checked~ul .menu-item {
   opacity: 1;
-.menu-toggler:checked ~ ul .menu-item:nth-child(3) {
+}
+
+.menu-toggler:checked~ul .menu-item:nth-child(3) {
   transform: rotate(45deg) translate(-45vmin);
 }
-.menu-toggler:checked ~ ul .menu-item:nth-child(4) {
+
+.menu-toggler:checked~ul .menu-item:nth-child(4) {
   transform: rotate(135deg) translateX(-45vmin);
 }
-.menu-toggler:checked ~ ul .menu-item:nth-child(1) {
+
+.menu-toggler:checked~ul .menu-item:nth-child(1) {
   transform: rotate(315deg) translateX(-45vmin);
 }
-.menu-toggler:checked ~ ul .menu-item:nth-child(2) {
+
+.menu-toggler:checked~ul .menu-item:nth-child(2) {
   transform: rotate(225deg) translateX(-45vmin);
 }
 
