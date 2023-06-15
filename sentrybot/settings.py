@@ -20,7 +20,9 @@ class Settings(BaseSettings):
     minimum_hue_target: int = 0
     maximum_hue_target: int = 60
     streaming_source: int = 2
+    do_haar_aiming: bool = False
     firing_threshold: int = 20
     frame_delay: float = 0.03
     default_nudge: float = 0.1
     rotate_feed: bool = True  # Rotate the camera feed
+    camera_offset: int = 100
