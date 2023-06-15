@@ -25,10 +25,10 @@ function fire() {
 
 function hideDiv() {
     const elementToHide = document.querySelector('.top');
-    if (elementToHide.style.display == 'none') {
-        elementToHide.style.display = 'block';
-    } else {
+    if (elementToHide.style.display == 'block') {
         elementToHide.style.display = 'none';
+    } else {
+        elementToHide.style.display = 'block';
     }
 
 }

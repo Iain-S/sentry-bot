@@ -21,7 +21,7 @@ function streamImages() {
     req.open("GET", "/latest-image.jpg");
     req.setRequestHeader("Content-type", "application/json; charset=utf-8");
     req.send();
-    setTimeout(streamImages, 1.0);
+    setTimeout(streamImages, 50.0);
 }
 window.onload = () => {
     // Key presses
