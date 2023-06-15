@@ -35,7 +35,7 @@
                 <label for="menu-toggler"></label>
                 <ul class="menu-container">
                     <li class="menu-item">
-                        <button class="shoot" onclick="fire();">&#128165;</button>
+                        <button class="shoot" onclick="fire_hearts(); fire();">&#128165;</button>
                     </li>
                     <li class="menu-item">
                         <button class="hide" onclick="hideDiv();">&#x1F3AF;</button>
@@ -101,7 +101,7 @@
 
     var before = Date.now();
     var id;
-    function fire() {
+    function fire_hearts() {
         // Call the frame function to start the animation
         callFunctionMultipleTimes(30);
         // var id = setInterval(frame, 10);

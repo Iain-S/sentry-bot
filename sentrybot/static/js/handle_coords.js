@@ -11,6 +11,7 @@ function testFunc() {
 }
 
 function fire() {
+    console.log('Fire on target!')
     xpos = document.getElementById("xpos").value
     ypos = document.getElementById("ypos").value
     var params = new URLSearchParams();
