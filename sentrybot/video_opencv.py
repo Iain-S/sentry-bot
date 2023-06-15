@@ -24,6 +24,7 @@ from sentrybot.turret_controller import TurretController
 
 
 def generate_camera_video(
+    pause_aiming: Event,
     turret_instruction: Optional[ClientInstruction] = None,
     turret_controller: Optional[TurretController] = None,
 ) -> Generator[bytes, None, None]:
@@ -53,8 +54,7 @@ def generate_camera_video(
         if settings.rotate_feed:
             frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
-        # do_aiming(frame, turret_controller)
-        if settings.do_aiming:
+        if not pause_aiming.is_set():
             if settings.do_haar_aiming:
                 do_haar_aiming(frame, turret_controller, state)
             else:
@@ -94,7 +94,10 @@ class OpenCVCamera:
 
     # pylint: disable=redefined-builtin
 
-    def __init__(self, turret_controller: Optional[TurretController]) -> None:
+    def __init__(
+        self, turret_controller: Optional[TurretController], pause_aiming: Event
+    ) -> None:
+        self.pause_aiming = pause_aiming
         self.should_exit = Event()
         self.thread: Optional[Thread] = None
         self.turret_controller = turret_controller
@@ -103,7 +106,7 @@ class OpenCVCamera:
         """Send OpenCV video to output."""
 
         # ToDo Restore client instruction?
-        stream = generate_camera_video(None, self.turret_controller)
+        stream = generate_camera_video(self.pause_aiming, None, self.turret_controller)
         while not should_exit.is_set():
             try:
                 frame = next(stream)
