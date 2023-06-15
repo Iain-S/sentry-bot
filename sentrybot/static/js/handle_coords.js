@@ -33,3 +33,15 @@ function hideDiv() {
     }
 
 }
+
+function enlarge() {
+    const image = document.querySelector('.videocontainer img');
+    console.log(image.style.width)
+    if (image.style.width != "70vmin") {
+        image.style.width = "70vmin";
+    } else {
+        image.style.width = "150vmin";
+    }
+    console.log(image.style.width)
+    console.log("end")
+}
