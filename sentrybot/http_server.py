@@ -8,7 +8,7 @@ import logging
 import socketserver
 from http import server
 from pathlib import Path
-from threading import Condition
+from threading import Condition, Event
 from typing import Final, Optional
 from urllib.parse import parse_qs
 
@@ -66,6 +66,12 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
     # pylint: disable=too-many-branches,too-many-statements
 
     turret: Optional[TurretController] = None
+    event: Optional[Event] = None
+
+    @classmethod
+    def set_event(cls, event: Event) -> None:
+        """Set a turret controller."""
+        cls.event = event
 
     @classmethod
     def set_turret(cls, turret: TurretController) -> None:
@@ -151,6 +157,15 @@ class StreamingHandler(server.SimpleHTTPRequestHandler):
                     self.turret.nudge_x(-1 * float(parsed["xNudge"][0]))
                     self.turret.nudge_y(float(parsed["yNudge"][0]))
 
+                elif "toggleAutoAiming" in parsed:
+                    if self.event:
+                        if self.event.is_set():
+                            self.event.clear()
+                        else:
+                            self.event.set()
+                    else:
+                        logging.warning("Event has not been set yet.")
+
             # Still getting ERR_EMPTY_RESPONSE
             self.send_response(200)
             self.send_header("Content-Type", "text/html")
@@ -220,7 +235,9 @@ def main() -> None:
     else:
         from sentrybot.video_opencv import OpenCVCamera
 
-        camera = OpenCVCamera(turret)
+        pause_aiming = Event()
+        StreamingHandler.set_event(pause_aiming)
+        camera = OpenCVCamera(turret, pause_aiming)
 
     camera.start_recording(OUTPUT, format="mjpeg")
 
