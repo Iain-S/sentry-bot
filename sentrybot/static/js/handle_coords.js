@@ -34,13 +34,21 @@ function hideDiv() {
 
 }
 
-function toggle_mode() {
-    console.log("Toggle mode")
+function toggle_mode(){
+    const button = document.getElementById("getthis");
+    // Define the symbols for toggle
+    const symbol1 = '🚗'; // car
+    const symbol2 = '🤖'; // robot
+    // Toggle the symbol
+    if (button.innerHTML == symbol1) {
+        button.innerHTML = symbol2;
+    } else {
+        button.innerHTML = symbol1;
+    }
     var url = '/ajax-data?toggleAutoAiming=1';
     fetch(url)
         .then(response => response.text())
         .then(text => console.log(text))
-
 }
 
 
