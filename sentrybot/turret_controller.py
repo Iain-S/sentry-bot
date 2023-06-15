@@ -84,7 +84,7 @@ class TurretController:
         self._left_dc_motor.on()
         sleep(1.0)
 
-        self._breach_servo.value = -0.8
+        self._breach_servo.value = -0.95
 
         # May, or may not, be the right length of time
         sleep(0.5)
