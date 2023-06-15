@@ -34,14 +34,13 @@ function hideDiv() {
 
 }
 
+var widescreen = true;
 function enlarge() {
-    const image = document.querySelector('.videocontainer img');
-    console.log(image.style.width)
-    if (image.style.width != "70vmin") {
-        image.style.width = "70vmin";
-    } else {
-        image.style.width = "150vmin";
-    }
-    console.log(image.style.width)
-    console.log("end")
+    const selector = '.videocontainer img';
+    const width = widescreen ? '150vmin' : '70vmin';
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(element => {
+        element.style.width = width;
+    });
+    widescreen = !widescreen;
 }
