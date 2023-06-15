@@ -1,13 +1,19 @@
 body {
   /* overflow: hidden; */
   background: #E6E6FA;
-  background: linear-gradient(to right, #b24592, #f15f79)
+  background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+
+  /* linear-gradient(to right, #b24592, #f15f79) */
 }
 
 header {
   background-color: rgb(245, 2, 180);
   padding: 2%;
   text-align: center;
+  margin-top: 0;
+  margin-left: 0;
+  margin-right: 0;
+
 }
 
 /* Style the title */
